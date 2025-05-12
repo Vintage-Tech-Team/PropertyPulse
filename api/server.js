@@ -86,7 +86,7 @@ app.use('/api/addresses', addressRoutes);
 app.use('/api/reviews', reviewRoutes);
 
 app.get('/', (req, res) => {
-	res.send('Welcome to Rentals Review API');
+	res.send('Welcome to PropertyPulse API');
 });
 
 // Global error handler

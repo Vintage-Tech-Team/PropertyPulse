@@ -1,0 +1,31 @@
+{
+	"version": 2,
+	"builds": [
+		{
+			"src": "api/dist/main.js",
+			"use": "@vercel/node"
+		},
+		{
+			"src": "web/dist",
+			"use": "@vercel/static"
+		},
+		{
+			"src": "admin/dist",
+			"use": "@vercel/static"
+		}
+	],
+	"routes": [
+		{
+			"src": "/api/(.*)",
+			"dest": "api/dist/main.js"
+		},
+		{
+			"src": "/admin/(.*)",
+			"dest": "admin/dist/index.html"
+		},
+		{
+			"src": "/(.*)",
+			"dest": "web/dist/index.html"
+		}
+	]
+}

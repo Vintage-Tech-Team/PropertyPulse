@@ -39,7 +39,7 @@ const protect = async (req, res, next) => {
 };
 
 // Middleware for checking role authorization
-exports.authorize = (allowedRoles) => {
+const authorize = (allowedRoles) => {
 	return (req, res, next) => {
 		if (!req.user) {
 			return res.status(401).json({ message: 'User not authenticated' });
@@ -61,4 +61,4 @@ exports.authorize = (allowedRoles) => {
 	};
 };
 
-module.exports = { protect };
+module.exports = { protect, authorize };

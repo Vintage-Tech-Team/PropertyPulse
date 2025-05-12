@@ -1,0 +1,40 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Theme Styles */
+.dark-theme {
+    background-color: #141414;
+    color: #ffffff;
+}
+
+.dark-theme .ant-card {
+    background-color: #1f1f1f;
+    border-color: #303030;
+}
+
+.dark-theme .ant-pagination-item {
+    background-color: #1f1f1f;
+    border-color: #303030;
+}
+
+.dark-theme .ant-select-selector {
+    background-color: #1f1f1f !important;
+    border-color: #303030 !important;
+}
+
+.dark-theme .ant-input {
+    background-color: #1f1f1f;
+    border-color: #303030;
+    color: #ffffff;
+}

@@ -1,0 +1,50 @@
+{
+	"version": 2,
+	"builds": [
+		{
+			"src": "server.js",
+			"use": "@vercel/node"
+		}
+	],
+	"routes": [
+		{
+			"src": "/api/auth/(.*)",
+			"dest": "/server.js"
+		},
+		{
+			"src": "/api/users/(.*)",
+			"dest": "/server.js"
+		},
+		{
+			"src": "/api/properties/(.*)",
+			"dest": "/server.js"
+		},
+		{
+			"src": "/api/addresses/(.*)",
+			"dest": "/server.js"
+		},
+		{
+			"src": "/api/reviews/(.*)",
+			"dest": "/server.js"
+		},
+		{
+			"src": "/api-docs/(.*)",
+			"dest": "/server.js"
+		},
+		{
+			"src": "/(.*)",
+			"dest": "/server.js",
+			"headers": {
+				"Access-Control-Allow-Origin": "*",
+				"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+				"Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Accept, Authorization"
+			}
+		}
+	],
+	"crons": [
+		{
+			"path": "/api/cron",
+			"schedule": "41 16 * * *"
+		}
+	]
+}

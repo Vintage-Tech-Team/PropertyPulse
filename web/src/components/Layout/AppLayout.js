@@ -59,7 +59,7 @@ const AppLayout = ({ children }) => {
 					}}
 				>
 					<Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>
-						Property Pulse
+						PropertyPulse
 					</Link>
 				</div>
 

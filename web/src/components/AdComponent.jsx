@@ -1,41 +1,38 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 
-// Regular AdSense Component
-const AdSense = () => {
-	const adRef = useRef(null);
-
+const AdComponent = () => {
 	useEffect(() => {
-		// Load AdSense script if not already loaded
-		const existingScript = document.querySelector('script[src*="adsbygoogle"]');
-		if (!existingScript) {
-			const script = document.createElement('script');
-			script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5204282066520456';
-			script.async = true;
-			script.crossOrigin = 'anonymous';
-			document.head.appendChild(script);
-		}
+		// Load AdSense script dynamically
+		const script = document.createElement('script');
+		script.async = true;
+		script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+		script.setAttribute('data-ad-client', 'ca-pub-5204282066520456');
+		script.crossOrigin = 'anonymous';
+		document.body.appendChild(script);
 
-		// Initialize the ad
-		try {
-			if (adRef.current) {
+		// Push ads configuration to AdSense
+		const ads = document.getElementsByClassName('adsbygoogle');
+		Array.from(ads).forEach((ad) => {
+			try {
 				(window.adsbygoogle = window.adsbygoogle || []).push({});
+			} catch (e) {
+				console.error('AdSense error:', e);
 			}
-		} catch (error) {
-			console.error('AdSense error:', error);
-		}
+		});
 	}, []);
 
 	return (
-		<ins
-			ref={adRef}
-			className="adsbygoogle"
-			style={{ display: 'block' }}
-			data-ad-client="ca-pub-5204282066520456"
-			data-ad-slot="7537506446"
-			data-ad-format="auto"
-			data-full-width-responsive="true"
-		/>
+		<div style={{ margin: '10px 0' }}>
+			<ins
+				className="adsbygoogle"
+				style={{ display: 'block' }}
+				data-ad-client="ca-pub-5204282066520456"
+				data-ad-slot="7537506446"
+				data-ad-format="auto"
+				data-full-width-responsive="true"
+			></ins>
+		</div>
 	);
 };
 
-export default AdSense;
+export default AdComponent;

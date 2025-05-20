@@ -10,6 +10,7 @@ import { setCoordinates } from '../../redux/slice/coordinatesSlice';
 import { useTheme } from '../../contexts/ThemeContext';
 import { PAKISTANI_CITIES } from '../../utils/constants';
 import { useAuth } from '../../contexts/AuthContext';
+import AdComponent from '../../components/AdComponent';
 
 const { Search } = Input;
 const { Option } = Select;
@@ -247,6 +248,76 @@ const PropertyListing = () => {
 		);
 	};
 
+	// Render list items with ads inserted between them
+	const renderListItems = (properties) => {
+		return properties
+			.map((property, index) => {
+				const listItem = (
+					<List.Item key={property._id}>
+						<Card
+							hoverable
+							onClick={() => handleCardClick(property._id)}
+							style={{ ...cardStyle, marginBottom: '10px' }}
+							bodyStyle={{ padding: '12px' }}
+						>
+							{!isMobile ? (
+								// Desktop Grid View
+								<div>
+									<img
+										src={property.imageUrls?.[0] || 'placeholder.jpg'}
+										alt={property.name}
+										style={{
+											width: '100%',
+											height: '200px',
+											objectFit: 'cover',
+											borderRadius: '4px',
+										}}
+									/>
+									<h4 style={{ marginTop: '8px', color: isDarkMode ? '#fff' : '#000' }}>{property.name}</h4>
+									<p>{property.address?.city}</p>
+									<Rate disabled allowHalf value={property?.averageRating || 0} />
+								</div>
+							) : (
+								// Mobile List View
+								<Row gutter={[16, 16]} align="middle">
+									<Col span={8}>
+										<img
+											src={property.imageUrls?.[0] || 'placeholder.jpg'}
+											alt={property.name}
+											style={{
+												width: '100%',
+												height: '80px',
+												objectFit: 'cover',
+												borderRadius: '4px',
+											}}
+										/>
+									</Col>
+									<Col span={16}>
+										<h4 style={{ margin: '0 0 4px 0', color: isDarkMode ? '#fff' : '#000' }}>{property.name}</h4>
+										<p style={{ margin: '0 0 4px 0' }}>{property.address?.city}</p>
+										<Rate disabled allowHalf value={property?.averageRating || 0} />
+									</Col>
+								</Row>
+							)}
+						</Card>
+					</List.Item>
+				);
+
+				// Insert ad after every 5 items
+				if ((index + 1) % 5 === 0) {
+					return [
+						listItem,
+						<List.Item key={`ad-${index}`}>
+							<AdComponent />
+						</List.Item>,
+					];
+				}
+
+				return listItem;
+			})
+			.flat();
+	};
+
 	// Update the main content rendering
 	const renderMainContent = () => {
 		if (viewMode === 'map') {
@@ -297,56 +368,7 @@ const PropertyListing = () => {
 							lg: isMobile ? 1 : 4,
 							xl: isMobile ? 1 : 4,
 						}}
-						renderItem={(property) => (
-							<List.Item>
-								<Card
-									hoverable
-									onClick={() => handleCardClick(property._id)}
-									style={{ ...cardStyle, marginBottom: '10px' }}
-									bodyStyle={{ padding: '12px' }}
-								>
-									{!isMobile ? (
-										// Desktop Grid View
-										<div>
-											<img
-												src={property.imageUrls?.[0] || 'placeholder.jpg'}
-												alt={property.name}
-												style={{
-													width: '100%',
-													height: '200px',
-													objectFit: 'cover',
-													borderRadius: '4px',
-												}}
-											/>
-											<h4 style={{ marginTop: '8px', color: isDarkMode ? '#fff' : '#000' }}>{property.name}</h4>
-											<p>{property.address?.city}</p>
-											<Rate disabled allowHalf value={property?.averageRating || 0} />
-										</div>
-									) : (
-										// Mobile List View
-										<Row gutter={[16, 16]} align="middle">
-											<Col span={8}>
-												<img
-													src={property.imageUrls?.[0] || 'placeholder.jpg'}
-													alt={property.name}
-													style={{
-														width: '100%',
-														height: '80px',
-														objectFit: 'cover',
-														borderRadius: '4px',
-													}}
-												/>
-											</Col>
-											<Col span={16}>
-												<h4 style={{ margin: '0 0 4px 0', color: isDarkMode ? '#fff' : '#000' }}>{property.name}</h4>
-												<p style={{ margin: '0 0 4px 0' }}>{property.address?.city}</p>
-												<Rate disabled allowHalf value={property?.averageRating || 0} />
-											</Col>
-										</Row>
-									)}
-								</Card>
-							</List.Item>
-						)}
+						items={renderListItems(properties)}
 					/>
 				</div>
 			);

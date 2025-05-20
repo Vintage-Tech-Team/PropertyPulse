@@ -12,7 +12,7 @@
 		"start:backend": "npm start --workspace=backend",
 		"start:web": "npm start --workspace=web",
 		"start:admin": "npm start --workspace=admin",
-		"dev": "concurrently \"nodemon --workspace=backend\" \"npm run dev:web\" \"npm run dev:admin\"",
+		"dev": "concurrently \"npm run dev:backend\" \"npm run dev:web\" \"npm run dev:admin\"",
 		"dev:backend": "nodemon --workspace=backend",
 		"dev:web": "npm start --workspace=web",
 		"dev:admin": "npm start --workspace=admin",
@@ -24,7 +24,9 @@
 		"clean": "rm -rf node_modules && rm -rf */node_modules",
 		"reset": "npm run clean && npm run install:all"
 	},
-	"devDependencies": {
-		"concurrently": "^8.2.2"
-	}
+	"dependencies": {
+		"concurrently": "^8.2.2",
+		"nodemon": "^3.0.1"
+	},
+	"devDependencies": {}
 }

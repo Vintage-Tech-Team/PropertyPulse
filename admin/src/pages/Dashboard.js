@@ -7,7 +7,8 @@ import PropertyManagement from './PropertyManagement';
 import ReviewManagement from './ReviewManagement';
 import AddressManagement from './AddressManagement';
 import { useAuth } from '../contexts/AuthContext';
-import PropertyDetails from './ProperyDetails';
+import PropertyDetails from './PropertyDetails';
+import QueryManagement from './QueryManagement';
 
 const { Header, Content, Sider } = Layout;
 
@@ -23,6 +24,7 @@ const Dashboard = () => {
 		{ key: 'users', label: 'Users', icon: <UserOutlined />, link: '/dashboard/users' },
 		{ key: 'addresses', label: 'Addresses', icon: <SettingOutlined />, link: '/dashboard/addresses' },
 		{ key: 'reviews', label: 'Reviews', icon: <FileTextOutlined />, link: '/dashboard/reviews' },
+		{ key: 'queries', label: 'Queries', icon: <FileTextOutlined />, link: '/dashboard/queries' },
 	];
 
 	// Determine Selected Menu Key
@@ -91,6 +93,7 @@ const Dashboard = () => {
 							<Route path="properties/:id" element={<PropertyDetails />} />
 							<Route path="addresses" element={<AddressManagement />} />
 							<Route path="reviews" element={<ReviewManagement />} />
+							<Route path="queries" element={<QueryManagement />} />
 
 							{/* Redirect from /dashboard to /dashboard/properties */}
 							<Route path="/" element={<Navigate to="/dashboard/properties" />} />

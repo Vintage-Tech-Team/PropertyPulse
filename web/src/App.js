@@ -13,6 +13,10 @@ import EditProperty from './pages/Property/EditProperty';
 import Profile from './pages/User/Profile';
 import AppLayout from './components/Layout/AppLayout';
 import VerifyEmail from './pages/Auth/VerifyEmail';
+import AboutUs from './pages/AboutUs/AboutUs';
+import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
+import TermsAndConditions from './pages/TermsConditions/TermsConditions';
+import ContactUs from './pages/ContactUs/ContactUs';
 
 const App = () => {
 	return (
@@ -26,6 +30,10 @@ const App = () => {
 						<Route path="/verify/:token" element={<VerifyEmail />} />
 						<Route path="/forgot-password" element={<ForgotPassword />} />
 						<Route path="/reset-password/:token" element={<ResetPassword />} />
+						<Route path="/about" element={<AboutUs />} />
+						<Route path="/contact" element={<ContactUs />} />
+						<Route path="/privacy-policy" element={<PrivacyPolicy />} />
+						<Route path="/terms" element={<TermsAndConditions />} />
 
 						{/* Semi-Public Routes (wrapped in AppLayout) */}
 						<Route

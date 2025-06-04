@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { MenuOutlined, BulbOutlined, BulbFilled } from '@ant-design/icons';
 import { useTheme } from '../../contexts/ThemeContext';
+import { Menu as AntMenu, Dropdown } from 'antd';
 
 const { Header, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -12,6 +13,7 @@ const AppLayout = ({ children }) => {
 	const { isAuthenticated, logout } = useAuth(); // Get authentication status
 	const navigate = useNavigate();
 	const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
+	const [desktopMenuVisible, setDesktopMenuVisible] = useState(false);
 	const screens = useBreakpoint();
 	const isMobile = !screens.md; // md and above = desktop
 	const { isDarkMode, toggleTheme } = useTheme();
@@ -32,6 +34,21 @@ const AppLayout = ({ children }) => {
 		navigate('/profile');
 		setMobileMenuVisible(false);
 	};
+
+	const menu = (
+		<AntMenu
+			onClick={({ key }) => {
+				navigate(key);
+				setDesktopMenuVisible(false);
+			}}
+			items={[
+				{ key: '/about', label: 'About' },
+				{ key: '/privacy-policy', label: 'Privacy Policy' },
+				{ key: '/terms', label: 'Terms & Conditions' },
+				{ key: '/contact', label: 'Contact' },
+			]}
+		/>
+	);
 
 	return (
 		<Layout style={{ minHeight: '100vh', background: themeColors.background }}>
@@ -89,6 +106,19 @@ const AppLayout = ({ children }) => {
 								<Button type="link" style={{ color: '#fff' }} onClick={() => navigate('/register')}>
 									Register
 								</Button>
+								<Dropdown
+									overlay={menu}
+									trigger={['click']}
+									open={desktopMenuVisible}
+									onOpenChange={setDesktopMenuVisible}
+									placement="bottomRight"
+								>
+									<Button
+										type="text"
+										icon={<MenuOutlined style={{ color: '#fff', fontSize: '20px' }} />}
+										style={{ marginLeft: 4 }}
+									/>
+								</Dropdown>
 							</>
 						)}
 					</Space>
@@ -100,7 +130,11 @@ const AppLayout = ({ children }) => {
 						className="mobile-menu-button"
 						type="text"
 						icon={<MenuOutlined style={{ color: '#fff', fontSize: '20px' }} />}
-						onClick={() => setMobileMenuVisible(true)}
+						onClick={() => {
+							// Remove focus from any button to prevent "selected" style
+							if (document.activeElement) document.activeElement.blur();
+							setMobileMenuVisible(true);
+						}}
 					/>
 				)}
 
@@ -114,6 +148,42 @@ const AppLayout = ({ children }) => {
 						width={250}
 					>
 						<Space direction="vertical" size="large">
+							<Button
+								block
+								onClick={() => {
+									navigate('/about');
+									setMobileMenuVisible(false);
+								}}
+							>
+								About
+							</Button>
+							<Button
+								block
+								onClick={() => {
+									navigate('/privacy-policy');
+									setMobileMenuVisible(false);
+								}}
+							>
+								Privacy Policy
+							</Button>
+							<Button
+								block
+								onClick={() => {
+									navigate('/terms');
+									setMobileMenuVisible(false);
+								}}
+							>
+								Terms & Conditions
+							</Button>
+							<Button
+								block
+								onClick={() => {
+									navigate('/contact');
+									setMobileMenuVisible(false);
+								}}
+							>
+								Contact
+							</Button>
 							{isAuthenticated ? (
 								<>
 									<Button type="primary" block onClick={handleProfile}>

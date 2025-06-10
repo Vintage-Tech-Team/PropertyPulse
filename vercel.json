@@ -12,6 +12,10 @@
 		{
 			"src": "admin/dist",
 			"use": "@vercel/static"
+		},
+		{
+			"src": "landing-page/dist",
+			"use": "@vercel/static"
 		}
 	],
 	"routes": [
@@ -26,6 +30,10 @@
 		{
 			"src": "/(.*)",
 			"dest": "web/dist/index.html"
+		},
+		{
+			"src": "/landing-page/(.*)",
+			"dest": "landing-page/dist/index.html"
 		}
 	]
 }

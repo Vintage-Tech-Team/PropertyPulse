@@ -81,10 +81,11 @@ const Dashboard = () => {
 					<Content
 						style={{
 							margin: '24px',
-							padding: '24px',
 							background: '#fff',
 							minHeight: 'calc(100vh - 112px)',
-							overflow: 'auto',
+							position: 'relative',
+							padding: 0, // Remove padding to allow children to handle their own padding
+							overflow: 'hidden', // Change from 'auto' to 'hidden'
 						}}
 					>
 						<Routes>

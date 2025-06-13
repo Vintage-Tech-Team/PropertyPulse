@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
 	Table,
 	Button,
@@ -33,7 +33,6 @@ const { TextArea } = Input;
 const ReviewManagement = () => {
 	const [users, setUsers] = useState([]);
 	const [reviews, setReviews] = useState([]);
-	console.log('🚀 ~ ReviewManagement ~ reviews:', reviews);
 	const [properties, setProperties] = useState([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [form] = Form.useForm();
@@ -263,19 +262,14 @@ const ReviewManagement = () => {
 	];
 
 	return (
-		<div
-			style={{
-				height: 'calc(100vh - 64px)',
-				backgroundColor: '#fff',
-				position: 'relative',
-			}}
-		>
+		<div style={{ height: '100%', position: 'relative', display: 'flex', flexDirection: 'column' }}>
 			{/* Header Section */}
 			<div
 				style={{
-					height: '72px',
 					padding: '16px 24px',
+					backgroundColor: '#fff',
 					borderBottom: '1px solid #f0f0f0',
+					flex: '0 0 auto',
 				}}
 			>
 				<Row gutter={[16, 16]} align="middle">
@@ -317,8 +311,9 @@ const ReviewManagement = () => {
 			{/* Table Section */}
 			<div
 				style={{
-					height: 'calc(100vh - 64px - 72px - 64px)',
-					overflow: 'auto',
+					flex: '1 1 auto',
+					overflowY: 'auto',
+					padding: '0 24px',
 				}}
 			>
 				<Table
@@ -415,15 +410,13 @@ const ReviewManagement = () => {
 			{/* Pagination Section */}
 			<div
 				style={{
-					height: '64px',
-					position: 'absolute',
-					bottom: 0,
-					width: '100%',
+					padding: '16px 24px',
+					backgroundColor: '#fff',
 					borderTop: '1px solid #f0f0f0',
 					display: 'flex',
-					alignItems: 'center',
 					justifyContent: 'center',
-					backgroundColor: '#fff',
+					alignItems: 'center',
+					flex: '0 0 auto',
 				}}
 			>
 				<Pagination

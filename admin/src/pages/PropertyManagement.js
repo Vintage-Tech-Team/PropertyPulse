@@ -190,19 +190,14 @@ const PropertyManagement = () => {
 	}, []);
 
 	return (
-		<div
-			style={{
-				height: 'calc(100vh - 64px)',
-				backgroundColor: '#fff',
-				position: 'relative',
-			}}
-		>
+		<div style={{ height: '100%', position: 'relative', display: 'flex', flexDirection: 'column' }}>
 			{/* Search and Filters */}
 			<div
 				style={{
-					height: '72px',
 					padding: '16px 24px',
+					backgroundColor: '#fff',
 					borderBottom: '1px solid #f0f0f0',
+					flex: '0 0 auto',
 				}}
 			>
 				<Row gutter={[16, 16]} align="middle">
@@ -239,13 +234,15 @@ const PropertyManagement = () => {
 				</Row>
 			</div>
 
-			{/* Table */}
+			{/* Table Content */}
 			<div
 				style={{
-					height: 'calc(100vh - 64px - 72px - 64px)',
-					overflow: 'auto',
+					flex: '1 1 auto',
+					overflowY: 'auto',
+					padding: '0 24px',
 				}}
 			>
+				{/* Scrollable Table Content */}
 				<Table
 					loading={loading}
 					dataSource={properties}
@@ -355,15 +352,13 @@ const PropertyManagement = () => {
 			{/* Pagination */}
 			<div
 				style={{
-					height: '64px',
-					position: 'absolute',
-					bottom: 0,
-					width: '100%',
+					padding: '16px 24px',
+					backgroundColor: '#fff',
 					borderTop: '1px solid #f0f0f0',
 					display: 'flex',
-					alignItems: 'center',
 					justifyContent: 'center',
-					backgroundColor: '#fff',
+					alignItems: 'center',
+					flex: '0 0 auto',
 				}}
 			>
 				<Pagination

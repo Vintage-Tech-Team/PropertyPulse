@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Input, message, Row, Col, Tag, Popconfirm, Radio, Space } from 'antd';
+import { Table, Button, Modal, Form, Input, message, Row, Col, Tag, Popconfirm, Radio, Space, Pagination } from 'antd';
 import { fetchUsers, addUser, deleteUser, updateUser } from '../services/userService';
 
 const { Search } = Input;
@@ -119,113 +119,153 @@ const UserManagement = () => {
 	};
 
 	return (
-		<div>
-			<Row gutter={[16, 16]} align="middle" style={{ marginBottom: '20px' }}>
-				<Col flex="auto">
-					<Space size="large">
-						<Radio.Group
-							value={verificationFilter}
-							onChange={handleVerificationFilterChange}
-							optionType="button"
-							buttonStyle="solid"
-						>
-							<Radio.Button value="all">All Users</Radio.Button>
-							<Radio.Button value="verified">
-								<Tag color="green">Verified</Tag>
-							</Radio.Button>
-							<Radio.Button value="unverified">
-								<Tag color="red">Unverified</Tag>
-							</Radio.Button>
-						</Radio.Group>
-						<Search placeholder="Search by name or email" onSearch={handleSearch} enterButton style={{ width: 400 }} />
-					</Space>
-				</Col>
-				<Col>
-					<Button type="primary" onClick={() => setIsModalOpen(true)}>
-						Add User
-					</Button>
-				</Col>
-			</Row>
-
-			<Table
-				loading={loading}
-				dataSource={users}
-				rowKey="_id"
-				scroll={{ y: 'calc(100vh - 300px)' }}
-				pagination={{
-					current: pagination.current,
-					pageSize: pagination.pageSize,
-					total: pagination.total,
-					showSizeChanger: true,
-					pageSizeOptions: ['20', '30', '50'],
-					showTotal: (total) => `Total ${total} users`,
-					position: ['bottomCenter'],
-					style: {
-						position: 'sticky',
-						bottom: 0,
-						width: '100%',
-						padding: '10px 0',
-						backgroundColor: 'white',
-						zIndex: 1,
-						borderTop: '1px solid #f0f0f0',
-					},
+		<div style={{ height: '100%', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+			{/* Search and Filters */}
+			<div
+				style={{
+					padding: '16px 24px',
+					backgroundColor: '#fff',
+					borderBottom: '1px solid #f0f0f0',
+					flex: '0 0 auto',
 				}}
-				onChange={handleTableChange}
-				columns={[
-					{
-						title: 'S.No',
-						key: 'serialNumber',
-						render: (_, __, index) => (pagination.current - 1) * pagination.pageSize + index + 1,
-						width: 80,
-					},
-					{
-						title: 'ID',
-						dataIndex: '_id',
-						key: '_id',
-						width: 220,
-					},
-					{ title: 'Name', dataIndex: 'name' },
-					{ title: 'Email', dataIndex: 'email' },
-					{ title: 'Role', dataIndex: 'role' },
-					{
-						title: 'Verified',
-						render: (_, record) => {
-							return record.verified === true ? <Tag color="green">Verified</Tag> : <Tag color="red">Not Verified</Tag>;
-						},
-					},
-					{
-						title: 'Action',
-						render: (_, record) => (
-							<>
-								<Popconfirm
-									title={
-										record.verified
-											? 'Are you sure you want to block this user?'
-											: 'Are you sure you want to verify this user?'
-									}
-									onConfirm={() => (record.verified ? handleBlock(record._id) : handleApprove(record._id))}
-									okText="Yes"
-									cancelText="No"
-								>
-									<Button type="primary" style={{ marginRight: '8px' }}>
-										{record.verified ? 'Block' : 'Verify'}
-									</Button>
-								</Popconfirm>
-								<Popconfirm
-									title="Are you sure you want to delete this user?"
-									onConfirm={() => handleDelete(record._id)}
-									okText="Yes"
-									cancelText="No"
-								>
-									<Button danger>Delete</Button>
-								</Popconfirm>
-							</>
-						),
-					},
-				]}
-			/>
+			>
+				<Row gutter={[16, 16]} align="middle">
+					<Col flex="auto">
+						<Space size="large">
+							<Radio.Group
+								value={verificationFilter}
+								onChange={handleVerificationFilterChange}
+								optionType="button"
+								buttonStyle="solid"
+							>
+								<Radio.Button value="all">All Users</Radio.Button>
+								<Radio.Button value="verified">
+									<Tag color="green">Verified</Tag>
+								</Radio.Button>
+								<Radio.Button value="unverified">
+									<Tag color="red">Unverified</Tag>
+								</Radio.Button>
+							</Radio.Group>
+							<Search
+								placeholder="Search by name or email"
+								onSearch={handleSearch}
+								enterButton
+								style={{ width: 400 }}
+							/>
+						</Space>
+					</Col>
+					<Col>
+						<Button type="primary" onClick={() => setIsModalOpen(true)}>
+							Add User
+						</Button>
+					</Col>
+				</Row>
+			</div>
 
-			<Modal title="Add User" open={isModalOpen} onCancel={() => setIsModalOpen(false)} onOk={() => form.submit()}>
+			{/* Table Content */}
+			<div
+				style={{
+					flex: '1 1 auto',
+					overflowY: 'auto',
+					padding: '0 24px',
+				}}
+			>
+				<Table
+					loading={loading}
+					dataSource={users}
+					rowKey="_id"
+					pagination={false}
+					columns={[
+						{
+							title: 'S.No',
+							key: 'serialNumber',
+							render: (_, __, index) => (pagination.current - 1) * pagination.pageSize + index + 1,
+							width: 80,
+						},
+						{
+							title: 'ID',
+							dataIndex: '_id',
+							key: '_id',
+							width: 220,
+						},
+						{ title: 'Name', dataIndex: 'name' },
+						{ title: 'Email', dataIndex: 'email' },
+						{ title: 'Role', dataIndex: 'role' },
+						{
+							title: 'Verified',
+							render: (_, record) => {
+								return record.verified === true ? (
+									<Tag color="green">Verified</Tag>
+								) : (
+									<Tag color="red">Not Verified</Tag>
+								);
+							},
+						},
+						{
+							title: 'Action',
+							render: (_, record) => (
+								<>
+									<Popconfirm
+										title={
+											record.verified
+												? 'Are you sure you want to block this user?'
+												: 'Are you sure you want to verify this user?'
+										}
+										onConfirm={() =>
+											record.verified ? handleBlock(record._id) : handleApprove(record._id)
+										}
+										okText="Yes"
+										cancelText="No"
+									>
+										<Button type="primary" style={{ marginRight: '8px' }}>
+											{record.verified ? 'Block' : 'Verify'}
+										</Button>
+									</Popconfirm>
+									<Popconfirm
+										title="Are you sure you want to delete this user?"
+										onConfirm={() => handleDelete(record._id)}
+										okText="Yes"
+										cancelText="No"
+									>
+										<Button danger>Delete</Button>
+									</Popconfirm>
+								</>
+							),
+						},
+					]}
+				/>
+			</div>
+
+			{/* Pagination */}
+			<div
+				style={{
+					padding: '16px 24px',
+					backgroundColor: '#fff',
+					borderTop: '1px solid #f0f0f0',
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+					flex: '0 0 auto',
+				}}
+			>
+				<Pagination
+					current={pagination.current}
+					pageSize={pagination.pageSize}
+					total={pagination.total}
+					showSizeChanger
+					pageSizeOptions={['20', '30', '50']}
+					showTotal={(total) => `Total ${total} users`}
+					onChange={(page, pageSize) => handleTableChange({ current: page, pageSize })}
+				/>
+			</div>
+
+			{/* Modal */}
+			<Modal
+				title="Add User"
+				open={isModalOpen}
+				onCancel={() => setIsModalOpen(false)}
+				onOk={() => form.submit()}
+			>
 				<Form form={form} onFinish={onSubmit}>
 					<Form.Item name="name" rules={[{ required: true, message: 'Name is required' }]}>
 						<Input placeholder="Name" />

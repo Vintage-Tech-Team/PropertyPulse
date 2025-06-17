@@ -24,7 +24,6 @@ import { updateUserProfile, updateUserPassword } from '../../services/userServic
 import { EditOutlined, UploadOutlined, UserOutlined, HomeOutlined, StarOutlined } from '@ant-design/icons';
 import { useTheme } from '../../contexts/ThemeContext';
 
-const { TabPane } = Tabs;
 const { useBreakpoint } = Grid;
 
 const Profile = () => {
@@ -599,8 +598,10 @@ const Profile = () => {
 					borderRadius: '8px',
 					boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
 				}}
-				bodyStyle={{
-					padding: screens.xs ? '12px 0' : '24px',
+				styles={{
+					body: {
+						padding: screens.xs ? '12px 0' : '24px',
+					},
 				}}
 			>
 				<Tabs

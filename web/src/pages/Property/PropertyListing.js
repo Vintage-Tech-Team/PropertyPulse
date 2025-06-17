@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { List, Card, message, Button, Col, Row, Input, Rate, Grid, Select, Radio, Slider, Modal } from 'antd';
 import { AppstoreOutlined, BarsOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -17,12 +17,10 @@ const { useBreakpoint } = Grid;
 
 const PropertyListing = () => {
 	const { isAuthenticated } = useAuth();
+	const page = 1;
 	const [properties, setProperties] = useState([]);
-	const [total, setTotal] = useState(0); // Total number of properties
-	const [page, setPage] = useState(1); // Current page
 	const [limit] = useState(10); // Results per page
 	const [loading, setLoading] = useState(false);
-	const [showMap, setShowMap] = useState(true);
 	const [selectedCity, setSelectedCity] = useState(null);
 	const [mapCenter, setMapCenter] = useState(null);
 	const [locationInitialized, setLocationInitialized] = useState(false);
@@ -62,7 +60,6 @@ const PropertyListing = () => {
 			try {
 				const data = await fetchProperties(apiParams);
 				setProperties(data.properties);
-				setTotal(data.total);
 			} catch (err) {
 				console.error('Failed to fetch properties:', err);
 				message.error('Failed to fetch properties');
@@ -303,7 +300,11 @@ const PropertyListing = () => {
 									hoverable
 									onClick={() => handleCardClick(property._id)}
 									style={{ ...cardStyle, marginBottom: '10px' }}
-									bodyStyle={{ padding: '12px' }}
+									styles={{
+										body: {
+											padding: '12px',
+										},
+									}}
 								>
 									{!isMobile ? (
 										// Desktop Grid View

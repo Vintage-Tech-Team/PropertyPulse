@@ -172,10 +172,12 @@ const PropertyDetails = () => {
 					display: 'flex',
 					flexDirection: 'column',
 				}}
-				bodyStyle={{
-					flex: 1,
-					overflow: 'auto', // Makes the content scrollable
-					padding: '0',
+				styles={{
+					body: {
+						flex: 1,
+						overflow: 'auto', // Makes the content scrollable
+						padding: '0',
+					},
 				}}
 			>
 				{property.reviews?.length > 0 ? (
@@ -278,7 +280,11 @@ const PropertyDetails = () => {
 				footer={null}
 				width="90%"
 				centered
-				bodyStyle={{ padding: 0 }}
+				styles={{
+					body: {
+						padding: 0,
+					},
+				}}
 			>
 				<div
 					style={{

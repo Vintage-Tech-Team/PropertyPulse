@@ -495,6 +495,29 @@ const Profile = () => {
 												<Rate disabled defaultValue={review.ratings.valueForMoney} allowHalf style={{ fontSize: 16 }} />
 											</div>
 										</Col>
+										<Col xs={24} sm={12}>
+											<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+												<span style={{ minWidth: '100px' }}>Water & Plumbing:</span>
+												<Rate disabled defaultValue={review.ratings.waterPlumbing} allowHalf style={{ fontSize: 16 }} />
+											</div>
+										</Col>
+										<Col xs={24} sm={12}>
+											<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+												<span style={{ minWidth: '100px' }}>Electricity:</span>
+												<Rate
+													disabled
+													defaultValue={review.ratings.electricityWiring}
+													allowHalf
+													style={{ fontSize: 16 }}
+												/>
+											</div>
+										</Col>
+										<Col xs={24} sm={12}>
+											<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+												<span style={{ minWidth: '100px' }}>Ventilation:</span>
+												<Rate disabled defaultValue={review.ratings.ventilation} allowHalf style={{ fontSize: 16 }} />
+											</div>
+										</Col>
 									</Row>
 									<div
 										style={{

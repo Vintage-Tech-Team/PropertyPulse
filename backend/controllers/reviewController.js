@@ -9,13 +9,35 @@ exports.createReview = async (req, res) => {
 			property: propertyId,
 			reviewer,
 			overallRating,
-			ratings,
+			ratings: ratingsString,
 			comment,
 			moveInDate,
 			moveOutDate,
 			consumerId,
 		} = req.body;
+		console.log('🚀 ~ exports.createReview= ~ ratings:', ratingsString);
 		const files = req.files;
+
+		// Parse the ratings if it's a string
+		const ratings = typeof ratingsString === 'string' ? JSON.parse(ratingsString) : ratingsString;
+
+		// Validate ratings object
+		const requiredRatings = [
+			'cleanliness',
+			'communication',
+			'location',
+			'waterPlumbing',
+			'electricityWiring',
+			'ventilation',
+			'valueForMoney',
+		];
+
+		const missingRatings = requiredRatings.filter((field) => !ratings || !ratings[field]);
+		if (missingRatings.length > 0) {
+			return res.status(400).json({
+				error: `Missing required ratings: ${missingRatings.join(', ')}`,
+			});
+		}
 
 		// Verify consumer ID matches with property
 		const property = await Property.findById(propertyId);
@@ -42,12 +64,20 @@ exports.createReview = async (req, res) => {
 		// Calculate stay duration if both dates are provided
 		const stayDuration = moveInDate && moveOutDate ? calculateDuration(moveInDate, moveOutDate) : undefined;
 
-		// Create the review
+		// Create the review with validated ratings
 		const review = new Review({
 			property: propertyId,
 			reviewer,
 			overallRating,
-			ratings,
+			ratings: {
+				cleanliness: parseInt(ratings.cleanliness),
+				communication: parseInt(ratings.communication),
+				location: parseInt(ratings.location),
+				waterPlumbing: parseInt(ratings.waterPlumbing),
+				electricityWiring: parseInt(ratings.electricityWiring),
+				ventilation: parseInt(ratings.ventilation),
+				valueForMoney: parseInt(ratings.valueForMoney),
+			},
 			comment,
 			stayDuration,
 			moveInDate: moveInDate ? new Date(moveInDate) : undefined,

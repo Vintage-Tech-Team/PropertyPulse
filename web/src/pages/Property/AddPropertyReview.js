@@ -108,6 +108,36 @@ const AddPropertyReview = ({ propertyId, onSuccess, onCancel, isSubmitting, setI
 				</Col>
 			</Row>
 
+			<Row gutter={[16, 0]}>
+				<Col span={8}>
+					<Form.Item
+						name={['ratings', 'waterPlumbing']}
+						label="Water & Plumbing"
+						rules={[{ required: true, message: 'Required' }]}
+					>
+						<Rate />
+					</Form.Item>
+				</Col>
+				<Col span={8}>
+					<Form.Item
+						name={['ratings', 'electricityWiring']}
+						label="Electricity & Wiring"
+						rules={[{ required: true, message: 'Required' }]}
+					>
+						<Rate />
+					</Form.Item>
+				</Col>
+				<Col span={8}>
+					<Form.Item
+						name={['ratings', 'ventilation']}
+						label="Ventilation"
+						rules={[{ required: true, message: 'Required' }]}
+					>
+						<Rate />
+					</Form.Item>
+				</Col>
+			</Row>
+
 			<Row gutter={[16, 0]} justify="center">
 				<Col span={8}>
 					<Form.Item

@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Card, Col, List, message, Modal, Row, Rate } from 'antd';
 import { fetchPropertyById } from '../../services/propertyService';
 import PropertyMap from '../../components/Map/PropertyMap'; // Import PropertyMap component
-import { getUserIdFromToken } from '../../utils/token';
 import { useAuth } from '../../contexts/AuthContext';
 import AddPropertyReview from './AddPropertyReview';
 
@@ -165,11 +164,25 @@ const PropertyDetails = () => {
 			</Card>
 
 			{/* Reviews Section */}
-			<Card title="Reviews" style={{ marginTop: '24px' }}>
+			<Card
+				title="Reviews"
+				style={{
+					marginTop: '24px',
+					height: '600px', // Fixed height for the card
+					display: 'flex',
+					flexDirection: 'column',
+				}}
+				bodyStyle={{
+					flex: 1,
+					overflow: 'auto', // Makes the content scrollable
+					padding: '0',
+				}}
+			>
 				{property.reviews?.length > 0 ? (
 					<List
 						bordered
 						dataSource={property.reviews}
+						style={{ padding: '24px' }}
 						renderItem={(review) => (
 							<List.Item>
 								<div style={{ width: '100%' }}>
@@ -179,9 +192,47 @@ const PropertyDetails = () => {
 												<strong>Reviewer:</strong> {review.reviewer?.name}
 											</p>
 											<p>
-												<strong>Rating:</strong>
+												<strong>Overall Rating:</strong>
 												<Rate disabled allowHalf value={review.overallRating || 0} style={{ marginLeft: '5px' }} />
 											</p>
+											{/* Detailed Ratings */}
+											<div style={{ marginTop: '10px' }}>
+												<strong>Detailed Ratings:</strong>
+												<Row gutter={[8, 8]} style={{ marginTop: '5px' }}>
+													<Col span={24}>
+														<small>Cleanliness:</small>
+														<Rate disabled value={review.ratings?.cleanliness || 0} style={{ fontSize: '14px' }} />
+													</Col>
+													<Col span={24}>
+														<small>Communication:</small>
+														<Rate disabled value={review.ratings?.communication || 0} style={{ fontSize: '14px' }} />
+													</Col>
+													<Col span={24}>
+														<small>Location:</small>
+														<Rate disabled value={review.ratings?.location || 0} style={{ fontSize: '14px' }} />
+													</Col>
+													<Col span={24}>
+														<small>Value for Money:</small>
+														<Rate disabled value={review.ratings?.valueForMoney || 0} style={{ fontSize: '14px' }} />
+													</Col>
+													<Col span={24}>
+														<small>Water & Plumbing:</small>
+														<Rate disabled value={review.ratings?.waterPlumbing || 0} style={{ fontSize: '14px' }} />
+													</Col>
+													<Col span={24}>
+														<small>Electricity & Wiring:</small>
+														<Rate
+															disabled
+															value={review.ratings?.electricityWiring || 0}
+															style={{ fontSize: '14px' }}
+														/>
+													</Col>
+													<Col span={24}>
+														<small>Ventilation:</small>
+														<Rate disabled value={review.ratings?.ventilation || 0} style={{ fontSize: '14px' }} />
+													</Col>
+												</Row>
+											</div>
 										</Col>
 										<Col xs={24} md={16}>
 											<p>{review.comment}</p>

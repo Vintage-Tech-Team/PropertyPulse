@@ -23,6 +23,9 @@ const ReviewSchema = new mongoose.Schema(
 			communication: { type: Number, min: 1, max: 5, default: 0 },
 			location: { type: Number, min: 1, max: 5, default: 0 },
 			valueForMoney: { type: Number, min: 1, max: 5, default: 0 },
+			waterPlumbing: { type: Number, min: 1, max: 5, default: 0 },
+			electricityWiring: { type: Number, min: 1, max: 5, default: 0 },
+			ventilation: { type: Number, min: 1, max: 5, default: 0 },
 		},
 		comment: {
 			type: String,

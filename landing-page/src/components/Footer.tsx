@@ -1,4 +1,5 @@
 import { Star, Mail, Phone, MapPin } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
 	return (
@@ -64,8 +65,9 @@ const Footer = () => {
 					</div>
 
 					{/* Support */}
+					{/* Support */}
 					<div className="space-y-4">
-						<h3 className="text-lg font-semibold">Support</h3>
+						<h3 className="text-lg font-semibold">Legal</h3>
 						<ul className="space-y-2">
 							<li>
 								<a href="#" className="text-gray-400 hover:text-white transition-colors">
@@ -73,14 +75,14 @@ const Footer = () => {
 								</a>
 							</li>
 							<li>
-								<a href="#" className="text-gray-400 hover:text-white transition-colors">
+								<Link to="/privacy" className="text-gray-400 hover:text-white transition-colors">
 									Privacy Policy
-								</a>
+								</Link>
 							</li>
 							<li>
-								<a href="#" className="text-gray-400 hover:text-white transition-colors">
+								<Link to="/terms" className="text-gray-400 hover:text-white transition-colors">
 									Terms of Service
-								</a>
+								</Link>
 							</li>
 							<li>
 								<a href="#" className="text-gray-400 hover:text-white transition-colors">
@@ -116,7 +118,7 @@ const Footer = () => {
 				</div>
 
 				<div className="border-t border-gray-800 mt-12 pt-8 text-center">
-					<p className="text-gray-400">© 2024 PropertyPulse. All rights reserved.</p>
+					<p className="text-gray-400">© 2025 PropertyPulse. All rights reserved.</p>
 				</div>
 			</div>
 		</footer>

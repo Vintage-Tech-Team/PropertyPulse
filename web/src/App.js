@@ -17,6 +17,10 @@ import AboutUs from './pages/AboutUs/AboutUs';
 import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsConditions/TermsConditions';
 import ContactUs from './pages/ContactUs/ContactUs';
+import ParkingList from './pages/Parking/ParkingList';
+// import ParkingDetails from './pages/Parking/ParkingDetails';
+// import AddParking from './pages/Parking/AddParking';
+// import EditParking from './pages/Parking/EditParking';
 
 const App = () => {
 	return (
@@ -45,6 +49,14 @@ const App = () => {
 							}
 						/>
 						<Route
+							path="/parkings"
+							element={
+								<AppLayout>
+									<ParkingList />
+								</AppLayout>
+							}
+						/>
+						<Route
 							path="/properties/:id"
 							element={
 								<AppLayout>
@@ -52,10 +64,20 @@ const App = () => {
 								</AppLayout>
 							}
 						/>
+						{/* <Route
+							path="/parkings/:id"
+							element={
+								<AppLayout>
+									<ParkingDetails />
+								</AppLayout>
+							}
+						/> */}
 
 						{/* Protected Routes */}
 						<Route path="/add-property" element={<ProtectedRoute component={AddProperty} />} />
+						{/* <Route path="/add-parking" element={<ProtectedRoute component={AddParking} />} /> */}
 						<Route path="/edit-property/:id" element={<ProtectedRoute component={EditProperty} />} />
+						{/* <Route path="/edit-parking/:id" element={<ProtectedRoute component={EditParking} />} /> */}
 						<Route path="/profile" element={<ProtectedRoute component={Profile} />} />
 
 						{/* Default Route */}

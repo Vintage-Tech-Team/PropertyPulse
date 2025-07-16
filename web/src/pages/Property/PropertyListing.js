@@ -30,6 +30,7 @@ const PropertyListing = () => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const coordinates = useSelector((state) => state.coordinates); // Get coordinates from Redux
+
 	const screens = useBreakpoint();
 	const isMobile = screens.xs;
 	const [radius, setRadius] = useState(10); // Add this near other state declarations

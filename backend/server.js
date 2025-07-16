@@ -11,6 +11,7 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const propertyRoutes = require('./routes/propertyRoutes');
 const userRoutes = require('./routes/userRoutes');
 const contactRoutes = require('./routes/contactRoutes');
+const parkingRoutes = require('./routes/parkingRoutes');
 
 // Initialize App
 const app = express();
@@ -86,6 +87,7 @@ app.use('/api/properties', propertyRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/contacts', contactRoutes);
+app.use('/api/parkings', parkingRoutes);
 
 app.get('/', (req, res) => {
 	res.send('Welcome to PropertyPulse API');

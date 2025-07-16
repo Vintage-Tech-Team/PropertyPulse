@@ -197,3 +197,72 @@ exports.deleteAddress = async (req, res) => {
 // 		console.error('Error during address dates update:', error);
 // 	}
 // })();
+
+// IIFE to add Lahore addresses
+// (async () => {
+// 	try {
+// 		console.log('Starting to add Lahore addresses...');
+
+// 		const lahoreAddresses = [
+// 			{
+// 				street: 'Mall Road',
+// 				block: 'Block A',
+// 				societyTown: 'Mall Road Area',
+// 				city: 'Lahore',
+// 				state: 'Punjab',
+// 				country: 'Pakistan',
+// 				location: {
+// 					lat: 31.5225,
+// 					lng: 74.3436,
+// 				},
+// 			},
+// 			{
+// 				street: 'Liberty Market',
+// 				block: 'Block B',
+// 				societyTown: 'Gulberg',
+// 				city: 'Lahore',
+// 				state: 'Punjab',
+// 				country: 'Pakistan',
+// 				location: {
+// 					lat: 31.5159,
+// 					lng: 74.3512,
+// 				},
+// 			},
+// 			{
+// 				street: 'M.M. Alam Road',
+// 				block: 'Block C',
+// 				societyTown: 'Gulberg III',
+// 				city: 'Lahore',
+// 				state: 'Punjab',
+// 				country: 'Pakistan',
+// 				location: {
+// 					lat: 31.5204,
+// 					lng: 74.3587,
+// 				},
+// 			},
+// 		];
+
+// 		const createdAddresses = [];
+// 		for (const addrData of lahoreAddresses) {
+// 			const existingAddress = await Address.findOne({
+// 				street: addrData.street,
+// 				city: 'Lahore',
+// 			});
+
+// 			if (!existingAddress) {
+// 				const address = new Address(addrData);
+// 				await address.save();
+// 				createdAddresses.push({
+// 					id: address._id,
+// 					street: address.street,
+// 					location: address.location,
+// 				});
+// 				console.log(`Created address: ${address.street} with ID: ${address._id}`);
+// 			}
+// 		}
+
+// 		console.log('Created addresses:', JSON.stringify(createdAddresses, null, 2));
+// 	} catch (error) {
+// 		console.error('Error adding Lahore addresses:', error);
+// 	}
+// })();

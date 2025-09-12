@@ -1,0 +1,604 @@
+/* Modern Airbnb-style Property Listing */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+  background: #ffffff;
+  font-family: 'Circular', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', sans-serif;
+  margin: -20px -20px -20px -20px;
+  padding: 0;
+  width: 100vw;
+  max-width: 100vw;
+  position: relative;
+  left: 0;
+  right: 0;
+}
+
+.container.dark {
+  background: #0a0a0a;
+}
+
+/* Search Bar */
+.searchBar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid #ebebeb;
+  padding: 16px 24px;
+  margin-bottom: 0;
+}
+
+.searchBar.dark {
+  background: rgba(34, 34, 34, 0.95);
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.searchForm {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.searchInput {
+  min-width: 300px;
+  flex: 1;
+}
+
+.searchInput .ant-input {
+  border-radius: 32px;
+  border: 1px solid #dddddd;
+  padding: 12px 20px;
+  font-size: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.searchInput .ant-input:hover,
+.searchInput .ant-input:focus {
+  border-color: #ff5a5f;
+  box-shadow: 0 4px 12px rgba(255, 90, 95, 0.15);
+}
+
+.filterButtons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filterButton {
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 24px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #222222;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.filterButton:hover {
+  border-color: #222222;
+  background: #f7f7f7;
+}
+
+.filterButton.active {
+  background: #222222;
+  color: #ffffff;
+  border-color: #222222;
+}
+
+.filterButton.dark {
+  background: #2a2a2a;
+  border-color: #404040;
+  color: #ffffff;
+}
+
+.filterButton.dark:hover {
+  border-color: #ffffff;
+  background: #404040;
+}
+
+.addPropertyBtn {
+  background: linear-gradient(135deg, #ff5a5f 0%, #ff385c 100%);
+  border: none;
+  border-radius: 24px;
+  padding: 12px 24px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(255, 90, 95, 0.3);
+}
+
+.addPropertyBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(255, 90, 95, 0.4);
+}
+
+/* View Toggle */
+.viewToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f7f7f7;
+  border-radius: 20px;
+  padding: 4px;
+}
+
+.viewToggle.dark {
+  background: #2a2a2a;
+}
+
+.viewToggleBtn {
+  background: transparent;
+  border: none;
+  border-radius: 16px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #717171;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.viewToggleBtn.active {
+  background: #ffffff;
+  color: #222222;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.viewToggleBtn.dark.active {
+  background: #404040;
+  color: #ffffff;
+}
+
+
+
+.propertiesSection {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  background: #ffffff;
+}
+
+.propertiesSection.dark {
+  background: #0a0a0a;
+}
+
+.propertiesGrid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+/* Grid in split view - exactly 2 columns */
+.splitView .propertiesGrid {
+  max-width: none;
+  margin: 0;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* For smaller screens, use single column in split view */
+@media (max-width: 1200px) {
+  .splitView .propertiesGrid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+/* Better spacing for split view properties section */
+.splitView .propertiesSection {
+  padding: 16px 8px 16px 16px;
+}
+
+/* Property Card - Airbnb Style */
+.propertyCard {
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: none;
+}
+
+.propertyCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.propertyCard.dark {
+  background: #1a1a1a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.propertyCard.dark:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+/* Proper image height for 2-column split view */
+.splitView .imageContainer {
+  height: 200px;
+}
+
+.propertyImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.propertyCard:hover .propertyImage {
+  transform: scale(1.05);
+}
+
+.favoriteButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.favoriteButton:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+}
+
+.favoriteButton.active {
+  color: #ff5a5f;
+}
+
+.cardContent {
+  padding: 16px;
+}
+
+.propertyLocation {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #717171;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.propertyName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #222222;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.propertyName.dark {
+  color: #ffffff;
+}
+
+.propertyDetails {
+  color: #717171;
+  font-size: 14px;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.propertyDetails.dark {
+  color: #b0b0b0;
+}
+
+.ratingContainer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 14px;
+  color: #222222;
+}
+
+.rating.dark {
+  color: #ffffff;
+}
+
+.ratingStars {
+  color: #ff5a5f;
+  font-size: 12px;
+}
+
+.propertyPrice {
+  font-size: 16px;
+  font-weight: 600;
+  color: #222222;
+  margin: 0;
+}
+
+.propertyPrice.dark {
+  color: #ffffff;
+}
+
+/* Main Content */
+.mainContent {
+    overflow: hidden;
+  }
+
+/* Split View Layout */
+.splitView {
+  display: flex;
+  height: 100%;
+  gap: 10px;
+  background-color: #ffffff;
+  padding: 20px;
+}
+
+
+
+.splitView .propertiesSection {
+  flex: 0 0 60%;
+  width: 60%;
+  max-width: 60%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+}
+
+.splitView .mapSection {
+ 
+}
+
+/* Map Section */
+.mapSection {
+
+}
+
+.mapContainer {
+  height: 100%;
+  border-radius: 16px;
+}
+
+/* List View */
+.propertiesList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.propertyListItem {
+  display: flex;
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: none;
+}
+
+.propertyListItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.propertyListItem.dark {
+  background: #1a1a1a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.listImageContainer {
+  width: 280px;
+  height: 200px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.listPropertyImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.propertyListItem:hover .listPropertyImage {
+  transform: scale(1.05);
+}
+
+.listCardContent {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Tablet Responsive - maintain 60/40 split */
+@media (max-width: 1024px) {
+  .splitView {
+    gap: 16px;
+  }
+  
+  /* Keep 60/40 split on tablets */
+  .splitView .propertiesSection {
+    flex: 0 0 60%;
+    width: 60%;
+    max-width: 60%;
+  }
+  
+  .splitView .mapSection {
+   
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .searchForm {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .searchInput {
+    min-width: auto;
+  }
+  
+  .filterButtons {
+    overflow-x: auto;
+    padding: 4px 0;
+    flex-wrap: nowrap;
+  }
+  
+  .propertiesGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 0 16px;
+  }
+  
+  .propertiesSection {
+    padding: 16px;
+  }
+  
+  .propertyListItem {
+    flex-direction: column;
+  }
+  
+  .listImageContainer {
+    width: 100%;
+    height: 240px;
+  }
+  
+  .viewToggle {
+    width: 100%;
+    justify-content: space-around;
+  }
+  
+  /* Force single column on mobile even in split view */
+  .splitView .propertiesGrid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Loading States */
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #717171;
+}
+
+.loadingContainer.dark {
+  color: #b0b0b0;
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 48px 24px;
+  color: #717171;
+}
+
+.emptyState.dark {
+  color: #b0b0b0;
+}
+
+.emptyStateTitle {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #222222;
+}
+
+.emptyStateTitle.dark {
+  color: #ffffff;
+}
+
+.emptyStateDescription {
+  font-size: 16px;
+  line-height: 1.5;
+  max-width: 400px;
+  margin: 0 auto 24px;
+}
+
+/* Custom Ant Design Overrides */
+.ant-input-search .ant-input-group .ant-input {
+  border-radius: 32px !important;
+}
+
+.ant-input-search .ant-input-search-button {
+  border-radius: 0 32px 32px 0 !important;
+  background: #ff5a5f !important;
+  border-color: #ff5a5f !important;
+}
+
+.ant-input-search .ant-input-search-button:hover {
+  background: #ff385c !important;
+  border-color: #ff385c !important;
+}
+
+.ant-select .ant-select-selector {
+  border-radius: 24px !important;
+  border-color: #dddddd !important;
+  height: 44px !important;
+}
+
+.ant-select .ant-select-selector:hover {
+  border-color: #ff5a5f !important;
+}
+
+.ant-slider .ant-slider-rail {
+  background: #f1f1f1 !important;
+}
+
+.ant-slider .ant-slider-track {
+  background: #ff5a5f !important;
+}
+
+.ant-slider .ant-slider-handle {
+  border-color: #ff5a5f !important;
+}
+
+.ant-slider .ant-slider-handle:hover,
+.ant-slider .ant-slider-handle:focus {
+  border-color: #ff385c !important;
+  box-shadow: 0 0 0 5px rgba(255, 90, 95, 0.2) !important;
+}

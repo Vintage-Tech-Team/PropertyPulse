@@ -1,6 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import { List, Card, message, Button, Col, Row, Input, Rate, Grid, Select, Radio, Slider, Modal } from 'antd';
-import { AppstoreOutlined, BarsOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { message, Input,  Select, Slider, Modal, Spin } from 'antd';
+import { 
+  SearchOutlined, 
+  HeartOutlined, 
+  HeartFilled, 
+  EnvironmentOutlined, 
+  AppstoreOutlined, 
+  UnorderedListOutlined,
+  GlobalOutlined,
+} from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { fetchProperties } from '../../services/propertyService';
 import PropertyMap from '../../components/Map/PropertyMap';
@@ -10,29 +18,40 @@ import { setCoordinates } from '../../redux/slice/coordinatesSlice';
 import { useTheme } from '../../contexts/ThemeContext';
 import { PAKISTANI_CITIES } from '../../utils/constants';
 import { useAuth } from '../../contexts/AuthContext';
+import styles from './PropertyListing.module.css';
 
 const { Search } = Input;
 const { Option } = Select;
-const { useBreakpoint } = Grid;
 
 const PropertyListing = () => {
 	const { isAuthenticated } = useAuth();
 	const page = 1;
 	const [properties, setProperties] = useState([]);
-	const [limit] = useState(10); // Results per page
+	const [limit] = useState(12); // Results per page - increased for better grid
 	const [loading, setLoading] = useState(false);
 	const [selectedCity, setSelectedCity] = useState(null);
 	const [mapCenter, setMapCenter] = useState(null);
 	const [locationInitialized, setLocationInitialized] = useState(false);
 	const [userLocation, setUserLocation] = useState(null);
-	const [viewMode, setViewMode] = useState('split'); // 'split', 'grid', or 'map'
+	const [viewMode, setViewMode] = useState('grid'); // 'grid', 'list', or 'map'
+	const [favorites, setFavorites] = useState(new Set());
 	const { isDarkMode } = useTheme();
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
-	const coordinates = useSelector((state) => state.coordinates); // Get coordinates from Redux
-	const screens = useBreakpoint();
-	const isMobile = screens.xs;
-	const [radius, setRadius] = useState(10); // Add this near other state declarations
+	const coordinates = useSelector((state) => state.coordinates);
+	const [radius, setRadius] = useState(10);
+	const [isMobile, setIsMobile] = useState(false);
+
+	// Check for mobile on mount and resize
+	useEffect(() => {
+		const checkMobile = () => {
+			setIsMobile(window.innerWidth <= 768);
+		};
+		
+		checkMobile();
+		window.addEventListener('resize', checkMobile);
+		return () => window.removeEventListener('resize', checkMobile);
+	}, []);
 
 	// Define the callback for loading properties
 	const loadProperties = useCallback(
@@ -149,8 +168,21 @@ const PropertyListing = () => {
 
 	// Debounce search input
 	const handleSearchDebounced = debounce((query) => {
+		
 		loadProperties({ query });
 	}, 500);
+
+	// Toggle favorite
+	const toggleFavorite = (propertyId, e) => {
+		e.stopPropagation();
+		const newFavorites = new Set(favorites);
+		if (newFavorites.has(propertyId)) {
+			newFavorites.delete(propertyId);
+		} else {
+			newFavorites.add(propertyId);
+		}
+		setFavorites(newFavorites);
+	};
 
 	const handleCardClick = (propertyId) => {
 		navigate(`/properties/${propertyId}`); // Navigate to property details page
@@ -205,50 +237,131 @@ const PropertyListing = () => {
 		}
 	};
 
-	// Modify the view mode radio group for mobile
-	const renderViewModeSelector = () => {
-		if (isMobile) {
-			return (
-				<Radio.Group
-					value={viewMode}
-					onChange={(e) => setViewMode(e.target.value)}
-					buttonStyle="solid"
-					style={{ width: '100%' }}
+	// Property Card Component
+	const PropertyCard = ({ property }) => (
+		<div 
+			className={`${styles.propertyCard} ${isDarkMode ? styles.dark : ''}`}
+			onClick={() => handleCardClick(property._id)}
+		>
+			<div className={styles.imageContainer}>
+				<img
+					src={property.imageUrls?.[0] || '/placeholder.svg'}
+					alt={property.name}
+					className={styles.propertyImage}
+				/>
+				<button
+					className={`${styles.favoriteButton} ${favorites.has(property._id) ? styles.active : ''}`}
+					onClick={(e) => toggleFavorite(property._id, e)}
 				>
-					<Radio.Button value="grid">
-						<AppstoreOutlined /> List
-					</Radio.Button>
-					<Radio.Button value="map">
-						<EnvironmentOutlined /> Map
-					</Radio.Button>
-				</Radio.Group>
+					{favorites.has(property._id) ? <HeartFilled /> : <HeartOutlined />}
+				</button>
+			</div>
+			<div className={styles.cardContent}>
+				<div className={styles.propertyLocation}>
+					<EnvironmentOutlined />
+					<span>{property.address?.city}</span>
+				</div>
+				<h3 className={`${styles.propertyName} ${isDarkMode ? styles.dark : ''}`}>
+					{property.name}
+				</h3>
+				<div className={`${styles.propertyDetails} ${isDarkMode ? styles.dark : ''}`}>
+					{property.address?.societyTown && `${property.address.societyTown}, `}
+					{property.address?.block && `Block ${property.address.block}`}
+				</div>
+				{property.averageRating > 0 && (
+					<div className={styles.ratingContainer}>
+						<div className={`${styles.rating} ${isDarkMode ? styles.dark : ''}`}>
+							<span className={styles.ratingStars}>★</span>
+							{/* <span>{property?.averageRating?.toFixed(1) || '0.0'}</span> */}
+						</div>
+					</div>
+				)}
+				<div className={`${styles.propertyPrice} ${isDarkMode ? styles.dark : ''}`}>
+					Owner: {property.owner}
+				</div>
+			</div>
+		</div>
+	);
+
+	// Property List Item Component
+	const PropertyListItem = ({ property }) => (
+		<div 
+			className={`${styles.propertyListItem} ${isDarkMode ? styles.dark : ''}`}
+			onClick={() => handleCardClick(property._id)}
+		>
+			<div className={styles.listImageContainer}>
+				<img
+					src={property.imageUrls?.[0] || '/placeholder.svg'}
+					alt={property.name}
+					className={styles.listPropertyImage}
+				/>
+			</div>
+			<div className={styles.listCardContent}>
+				<div>
+					<div className={styles.propertyLocation}>
+						<EnvironmentOutlined />
+						<span>{property.address?.city}</span>
+					</div>
+					<h3 className={`${styles.propertyName} ${isDarkMode ? styles.dark : ''}`}>
+						{property.name}
+					</h3>
+					<div className={`${styles.propertyDetails} ${isDarkMode ? styles.dark : ''}`}>
+						<strong>Address:</strong> {property.address?.houseNumber && `${property.address.houseNumber}, `}
+						{property.address?.street && `${property.address.street}, `}
+						{property.address?.block && `Block ${property.address.block}, `}
+						{property.address?.societyTown}
+					</div>
+				</div>
+				<div>
+					{property.averageRating > 0 && (
+						<div className={styles.ratingContainer}>
+							<div className={`${styles.rating} ${isDarkMode ? styles.dark : ''}`}>
+								<span className={styles.ratingStars}>★</span>
+								{/* <span>{property?.averageRating?.toFixed(1) || '0.0'}</span> */}
+							</div>
+						</div>
+					)}
+					<div className={`${styles.propertyPrice} ${isDarkMode ? styles.dark : ''}`}>
+						Owner: {property.owner}
+					</div>
+				</div>
+			</div>
+			<button
+				className={`${styles.favoriteButton} ${favorites.has(property._id) ? styles.active : ''}`}
+				onClick={(e) => toggleFavorite(property._id, e)}
+				style={{ position: 'absolute', top: '16px', right: '16px' }}
+			>
+				{favorites.has(property._id) ? <HeartFilled /> : <HeartOutlined />}
+			</button>
+		</div>
+	);
+
+	// Main content rendering
+	const renderMainContent = () => {
+		if (loading) {
+			return (
+				<div className={`${styles.loadingContainer} ${isDarkMode ? styles.dark : ''}`}>
+					<Spin size="large" />
+				</div>
 			);
 		}
-		return (
-			<Radio.Group
-				value={viewMode}
-				onChange={(e) => setViewMode(e.target.value)}
-				buttonStyle="solid"
-				style={{ width: '100%' }}
-			>
-				<Radio.Button value="split">
-					<BarsOutlined /> List+Map
-				</Radio.Button>
-				<Radio.Button value="grid">
-					<AppstoreOutlined /> Grid
-				</Radio.Button>
-				<Radio.Button value="map">
-					<EnvironmentOutlined /> Map
-				</Radio.Button>
-			</Radio.Group>
-		);
-	};
 
-	// Update the main content rendering
-	const renderMainContent = () => {
+		if (properties.length === 0) {
+			return (
+				<div className={`${styles.emptyState} ${isDarkMode ? styles.dark : ''}`}>
+					<h2 className={`${styles.emptyStateTitle} ${isDarkMode ? styles.dark : ''}`}>
+						No properties found
+					</h2>
+					<p className={styles.emptyStateDescription}>
+						Try adjusting your search criteria or explore different areas.
+					</p>
+				</div>
+			);
+		}
+
 		if (viewMode === 'map') {
 			return (
-				<div style={{ height: '100%' }}>
+				<div className={styles.mapSection}>
 					<PropertyMap
 						properties={properties}
 						center={mapCenter}
@@ -259,189 +372,52 @@ const PropertyListing = () => {
 			);
 		}
 
-		if (viewMode === 'grid') {
+		if (viewMode === 'list') {
 			return (
-				<div
-					style={{
-						height: '100%',
-						overflowY: 'auto',
-						overflowX: 'hidden',
-						paddingBottom: '20px',
-						margin: '0',
-						width: '100%',
-						msOverflowStyle: 'none' /* Hide scrollbar for IE and Edge */,
-						scrollbarWidth: 'none' /* Hide scrollbar for Firefox */,
-						WebkitOverflowScrolling: 'touch' /* Smooth scrolling for iOS */,
-					}}
-				>
-					<style>
-						{`
-							/* Hide scrollbar for Chrome, Safari and Opera */
-							div::-webkit-scrollbar {
-								display: none;
-							}
-						`}
-					</style>
-					<List
-						loading={loading}
-						dataSource={properties}
-						style={{ padding: '0 1px' }} // Prevent content touching edges
-						grid={{
-							gutter: 16,
-							xs: 1,
-							sm: isMobile ? 1 : 2,
-							md: isMobile ? 1 : 3,
-							lg: isMobile ? 1 : 4,
-							xl: isMobile ? 1 : 4,
-						}}
-						renderItem={(property) => (
-							<List.Item>
-								<Card
-									hoverable
-									onClick={() => handleCardClick(property._id)}
-									style={{ ...cardStyle, marginBottom: '10px' }}
-									styles={{
-										body: {
-											padding: '12px',
-										},
-									}}
-								>
-									{!isMobile ? (
-										// Desktop Grid View
-										<div>
-											<img
-												src={property.imageUrls?.[0] || 'placeholder.jpg'}
-												alt={property.name}
-												style={{
-													width: '100%',
-													height: '200px',
-													objectFit: 'cover',
-													borderRadius: '4px',
-												}}
-											/>
-											<h4 style={{ marginTop: '8px', color: isDarkMode ? '#fff' : '#000' }}>{property.name}</h4>
-											<p>{property.address?.city}</p>
-											<Rate disabled allowHalf value={property?.averageRating || 0} />
-										</div>
-									) : (
-										// Mobile List View
-										<Row gutter={[16, 16]} align="middle">
-											<Col span={8}>
-												<img
-													src={property.imageUrls?.[0] || 'placeholder.jpg'}
-													alt={property.name}
-													style={{
-														width: '100%',
-														height: '80px',
-														objectFit: 'cover',
-														borderRadius: '4px',
-													}}
-												/>
-											</Col>
-											<Col span={16}>
-												<h4 style={{ margin: '0 0 4px 0', color: isDarkMode ? '#fff' : '#000' }}>{property.name}</h4>
-												<p style={{ margin: '0 0 4px 0' }}>{property.address?.city}</p>
-												<Rate disabled allowHalf value={property?.averageRating || 0} />
-											</Col>
-										</Row>
-									)}
-								</Card>
-							</List.Item>
-						)}
-					/>
+				<div className={`${styles.propertiesSection} ${isDarkMode ? styles.dark : ''}`}>
+					<div className={styles.propertiesList}>
+						{properties.map((property) => (
+							<PropertyListItem key={property._id} property={property} />
+						))}
+					</div>
 				</div>
 			);
 		}
 
-		// Split view - only shown on desktop
-		if (!isMobile) {
+		// Grid view (default) - shows both properties and map
+		if (isMobile) {
+			// On mobile, show only grid
 			return (
-				<div style={{ display: 'flex', height: '100%', gap: '10px' }}>
-					{/* List Section */}
-					<div
-						style={{
-							flex: 1,
-							overflowY: 'auto',
-							paddingRight: '10px',
-						}}
-					>
-						<List
-							loading={loading}
-							dataSource={properties}
-							renderItem={(property) => (
-								<Card
-									hoverable
-									onClick={() => handleCardClick(property._id)}
-									style={{ ...cardStyle, marginBottom: '10px' }}
-								>
-									<Row gutter={[16, 16]} align="middle">
-										<Col xs={24} sm={6}>
-											{property.imageUrls && property.imageUrls[0] ? (
-												<img
-													src={property.imageUrls[0]}
-													alt={property.name}
-													style={{
-														width: '100%',
-														height: '120px',
-														objectFit: 'cover',
-														borderRadius: '4px',
-													}}
-												/>
-											) : (
-												<div
-													style={{
-														width: '100%',
-														height: '120px',
-														background: '#f5f5f5',
-														borderRadius: '4px',
-														display: 'flex',
-														alignItems: 'center',
-														justifyContent: 'center',
-													}}
-												>
-													No Image
-												</div>
-											)}
-										</Col>
-										<Col xs={24} sm={18}>
-											<h3 style={{ margin: '0 0 8px 0' }}>{property.name}</h3>
-											<p style={{ margin: '0 0 8px 0', lineHeight: '1.6', fontSize: '14px' }}>
-												<strong>House No.:</strong> {property.address?.houseNumber || 'N/A'},<br />
-												<strong>Street:</strong> {property.address?.street || 'N/A'},<br />
-												<strong>Block:</strong> {property.address?.block || 'N/A'},<br />
-												<strong>Society/Town:</strong> {property.address?.societyTown || 'N/A'},<br />
-												<strong>City:</strong> {property.address?.city || 'N/A'}
-											</p>
-
-											<p style={{ margin: '0 0 8px 0' }}>Owner: {property.owner}</p>
-											<Rate disabled allowHalf value={property?.averageRating || 0} />
-										</Col>
-									</Row>
-								</Card>
-							)}
-						/>
+				<div className={`${styles.propertiesSection} ${isDarkMode ? styles.dark : ''}`}>
+					<div className={styles.propertiesGrid}>
+						{properties.map((property) => (
+							<PropertyCard key={property._id} property={property} />
+						))}
 					</div>
-
-					{/* Map Section */}
-					<div style={{ flex: 1, height: '100%' }}>
+				</div>
+			);
+		} else {
+			// On desktop, show split view with grid and map
+			return (
+				<div className={styles.splitView}>
+					<div className={`${styles.propertiesSection} ${isDarkMode ? styles.dark : ''}`}>
+						<div className={styles.propertiesGrid}>
+							{properties.map((property) => (
+								<PropertyCard key={property._id} property={property} />
+							))}
+						</div>
+					</div>
+					
 						<PropertyMap
 							properties={properties}
 							center={mapCenter}
 							zoom={mapCenter ? 12 : undefined}
 							onMoveEnd={handleMapMoveEnd}
 						/>
-					</div>
+					
 				</div>
 			);
 		}
-
-		// Fallback to grid view on mobile if split view is selected
-		return viewMode === 'split' ? setViewMode('grid') : null;
-	};
-
-	const cardStyle = {
-		backgroundColor: isDarkMode ? '#1f1f1f' : '#ffffff',
-		color: isDarkMode ? '#ffffff' : '#000000',
 	};
 
 	const handleAddPropertyClick = () => {
@@ -461,41 +437,35 @@ const PropertyListing = () => {
 	};
 
 	return (
-		<div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 104px)', overflow: 'hidden' }}>
-			{/* Top Bar */}
-			<div
-				style={{
-					backgroundColor: isDarkMode ? '#1f1f1f' : 'white',
-					padding: '10px',
-					boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-					zIndex: 10,
-				}}
-			>
-				<Row gutter={[16, 16]} align="middle" wrap={true}>
+		<div className={`${styles.container} ${isDarkMode ? styles.dark : ''}`}>
+			{/* Modern Search Bar */}
+			<div className={`${styles.searchBar} ${isDarkMode ? styles.dark : ''}`}>
+				<div className={styles.searchForm}>
 					{/* Add Property Button */}
-					<Col xs={24} sm={6} md={4} lg={3}>
-						<Button type="primary" onClick={handleAddPropertyClick} style={{ width: '100%' }}>
-							Add Property
-						</Button>
-					</Col>
+					<button className={styles.addPropertyBtn} onClick={handleAddPropertyClick}>
+						Add Property
+					</button>
 
 					{/* Search Input */}
-					<Col xs={24} sm={8} md={6} lg={5}>
+					<div className={styles.searchInput}>
 						<Search
-							placeholder="Search by name or address"
+							placeholder="Search destinations"
+							prefix={<SearchOutlined />}
 							onChange={(e) => handleSearchDebounced(e.target.value)}
-							style={{ width: '100%' }}
+							size="large"
 						/>
-					</Col>
+					</div>
 
-					{/* City Select */}
-					<Col xs={24} sm={8} md={4} lg={4}>
+					{/* Filter Buttons */}
+					<div className={styles.filterButtons}>
+						{/* City Filter */}
 						<Select
-							placeholder="Select city"
-							style={{ width: '100%' }}
+							placeholder="Anywhere"
+							style={{ minWidth: 120 }}
 							onChange={handleCityChange}
 							allowClear
 							value={selectedCity}
+							size="large"
 						>
 							{Object.values(PAKISTANI_CITIES).map((city) => (
 								<Option key={city.name} value={city.name}>
@@ -503,42 +473,48 @@ const PropertyListing = () => {
 								</Option>
 							))}
 						</Select>
-					</Col>
 
-					{/* Radius Slider */}
-					<Col xs={24} sm={12} md={6} lg={6}>
-						<div style={{ padding: '0 10px' }}>
-							<span style={{ marginBottom: '8px', display: 'block', color: isDarkMode ? '#fff' : '#000' }}>
-								Radius: {radius} km
-							</span>
+						{/* Radius Filter */}
+						<div className={`${styles.filterButton} ${isDarkMode ? styles.dark : ''}`}>
+							<GlobalOutlined />
+							<span>{radius} km</span>
 							<Slider
 								min={1}
 								max={50}
 								value={radius}
 								onChange={setRadius}
+								style={{ width: 80, margin: 0 }}
 								tooltip={{ formatter: (value) => `${value} km` }}
 							/>
 						</div>
-					</Col>
 
-					{/* View Mode Selector */}
-					<Col xs={24} sm={12} md={4} lg={4}>
-						{renderViewModeSelector()}
-					</Col>
-				</Row>
+						{/* View Toggle */}
+						<div className={`${styles.viewToggle} ${isDarkMode ? styles.dark : ''}`}>
+							<button
+								className={`${styles.viewToggleBtn} ${viewMode === 'grid' ? styles.active : ''} ${isDarkMode ? styles.dark : ''}`}
+								onClick={() => setViewMode('grid')}
+							>
+								<AppstoreOutlined />
+							</button>
+							<button
+								className={`${styles.viewToggleBtn} ${viewMode === 'list' ? styles.active : ''} ${isDarkMode ? styles.dark : ''}`}
+								onClick={() => setViewMode('list')}
+							>
+								<UnorderedListOutlined />
+							</button>
+							<button
+								className={`${styles.viewToggleBtn} ${viewMode === 'map' ? styles.active : ''} ${isDarkMode ? styles.dark : ''}`}
+								onClick={() => setViewMode('map')}
+							>
+								<EnvironmentOutlined />
+							</button>
+						</div>
+					</div>
+				</div>
 			</div>
 
 			{/* Main Content */}
-			<div
-				style={{
-					flex: 1,
-					overflow: 'hidden',
-					padding: '10px',
-					backgroundColor: isDarkMode ? '#141414' : '#f0f2f5',
-					// Remove any height constraints that might prevent scrolling
-					position: 'relative',
-				}}
-			>
+			<div className={styles.mainContent}>
 				{renderMainContent()}
 			</div>
 		</div>

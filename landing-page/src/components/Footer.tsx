@@ -47,18 +47,18 @@ const Footer = () => {
 								</a>
 							</li>
 							<li>
-								<a href="#" className="text-gray-400 hover:text-white transition-colors">
-									Reviews
+								<a href="#rate-landlord" className="text-gray-400 hover:text-white transition-colors">
+									Rate Landlord
 								</a>
 							</li>
 							<li>
-								<a href="#" className="text-gray-400 hover:text-white transition-colors">
-									About Us
+								<a href="#find-reviews" className="text-gray-400 hover:text-white transition-colors">
+									Find Reviews
 								</a>
 							</li>
 							<li>
-								<a href="#" className="text-gray-400 hover:text-white transition-colors">
-									Contact
+								<a href="#contact-us" className="text-gray-400 hover:text-white transition-colors">
+									Contact us
 								</a>
 							</li>
 						</ul>
@@ -70,7 +70,7 @@ const Footer = () => {
 						<h3 className="text-lg font-semibold">Legal</h3>
 						<ul className="space-y-2">
 							<li>
-								<a href="#" className="text-gray-400 hover:text-white transition-colors">
+								<a href="/HelpCenter" className="text-gray-400 hover:text-white transition-colors">
 									Help Center
 								</a>
 							</li>
@@ -85,12 +85,12 @@ const Footer = () => {
 								</Link>
 							</li>
 							<li>
-								<a href="#" className="text-gray-400 hover:text-white transition-colors">
+								<a href="/Guidelines" className="text-gray-400 hover:text-white transition-colors">
 									Guidelines
 								</a>
 							</li>
 							<li>
-								<a href="#" className="text-gray-400 hover:text-white transition-colors">
+								<a href="/Faq" className="text-gray-400 hover:text-white transition-colors">
 									FAQ
 								</a>
 							</li>

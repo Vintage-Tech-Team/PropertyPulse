@@ -24,13 +24,13 @@ const Header = () => {
 						<a href="#features" className="text-gray-600 hover:text-purple-600 transition-colors">
 							Features
 						</a>
-						<a href="#reviews" className="text-gray-600 hover:text-purple-600 transition-colors">
-							Reviews
+						<a href="#rate-landlord" className="text-gray-600 hover:text-purple-600 transition-colors">
+							Rate LandLord
 						</a>
-						<a href="#about" className="text-gray-600 hover:text-purple-600 transition-colors">
-							About
+						<a href="#find-reviews" className="text-gray-600 hover:text-purple-600 transition-colors">
+							Find Reviews
 						</a>
-						<a href="#contact" className="text-gray-600 hover:text-purple-600 transition-colors">
+						<a href="#contact-us" className="text-gray-600 hover:text-purple-600 transition-colors">
 							Contact
 						</a>
 					</nav>
@@ -60,13 +60,13 @@ const Header = () => {
 							<a href="#features" className="text-gray-600 hover:text-purple-600 transition-colors">
 								Features
 							</a>
-							<a href="#reviews" className="text-gray-600 hover:text-purple-600 transition-colors">
-								Reviews
+							<a href="#rate-landlord" className="text-gray-600 hover:text-purple-600 transition-colors">
+								Rate Landlord
 							</a>
-							<a href="#about" className="text-gray-600 hover:text-purple-600 transition-colors">
-								About
+							<a href="#find-reviews" className="text-gray-600 hover:text-purple-600 transition-colors">
+								Find Reviews
 							</a>
-							<a href="#contact" className="text-gray-600 hover:text-purple-600 transition-colors">
+							<a href="#contact-us" className="text-gray-600 hover:text-purple-600 transition-colors">
 								Contact
 							</a>
 							<div className="flex flex-col space-y-2 pt-4">

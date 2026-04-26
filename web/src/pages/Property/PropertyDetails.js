@@ -13,6 +13,8 @@ const PropertyDetails = () => {
 	const [property, setProperty] = useState(null);
 	const [lightboxVisible, setLightboxVisible] = useState(false);
 	const [currentImage, setCurrentImage] = useState(0);
+	// currentImageList holds the array of image URLs currently shown in the lightbox
+	const [currentImageList, setCurrentImageList] = useState(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -32,12 +34,18 @@ const PropertyDetails = () => {
 
 	if (!property) return <div>Loading...</div>;
 
-	const handleImageClick = (index) => {
+	const handleImageClick = (index, images = null) => {
+		// images: optional array to use for the lightbox (e.g., review.media)
+		const list = images || property.imageUrls || [];
+		setCurrentImageList(list);
 		setCurrentImage(index);
 		setLightboxVisible(true);
 	};
 
-	const closeLightbox = () => setLightboxVisible(false);
+	const closeLightbox = () => {
+		setLightboxVisible(false);
+		setCurrentImageList(null);
+	};
 
 	const handleAddReviewClick = () => {
 		if (!isAuthenticated) {
@@ -142,10 +150,11 @@ const PropertyDetails = () => {
 							onClick={() => handleImageClick(index)}
 							style={{
 								position: 'relative',
-								aspectRatio: '4/3',
+								height: '250px',
 								borderRadius: '8px',
 								overflow: 'hidden',
 								cursor: 'pointer',
+								width: '50%',
 								backgroundColor: '#f0f0f0',
 							}}
 						>
@@ -245,7 +254,8 @@ const PropertyDetails = () => {
 															<img
 																src={url}
 																alt="Review Media"
-																style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+																style={{ width: '100px', height: '100px', objectFit: 'cover', cursor: 'pointer' }}
+																onClick={() => handleImageClick(index, review.media)}
 															/>
 														</Col>
 													))}
@@ -294,15 +304,20 @@ const PropertyDetails = () => {
 						backgroundColor: '#000',
 					}}
 				>
-					<img
-						src={property.imageUrls[currentImage]}
-						alt={`Property ${currentImage + 1}`}
-						style={{
-							width: '100%',
-							height: '100%',
-							objectFit: 'contain',
-						}}
-					/>
+					{(() => {
+						const imagesToShow = currentImageList || property.imageUrls || [];
+						return (
+							<img
+								src={imagesToShow[currentImage]}
+								alt={`Property ${currentImage + 1}`}
+								style={{
+									width: '100%',
+									height: '100%',
+									objectFit: 'contain',
+								}}
+							/>
+						);
+					})()}
 					<div
 						style={{
 							position: 'absolute',
@@ -315,23 +330,28 @@ const PropertyDetails = () => {
 							backgroundColor: 'rgba(0,0,0,0.5)',
 						}}
 					>
-						<Button
-							type="text"
-							style={{ color: '#fff', marginRight: '10px' }}
-							onClick={() =>
-								setCurrentImage((currentImage - 1 + property.imageUrls.length) % property.imageUrls.length)
-							}
-						>
-							Previous
-						</Button>
-						<span>{`${currentImage + 1} of ${property.imageUrls.length}`}</span>
-						<Button
-							type="text"
-							style={{ color: '#fff', marginLeft: '10px' }}
-							onClick={() => setCurrentImage((currentImage + 1) % property.imageUrls.length)}
-						>
-							Next
-						</Button>
+						{(() => {
+							const imagesToShow = currentImageList || property.imageUrls || [];
+							return (
+								<>
+									<Button
+										type="text"
+										style={{ color: '#fff', marginRight: '10px' }}
+										onClick={() => setCurrentImage((currentImage - 1 + imagesToShow.length) % imagesToShow.length)}
+									>
+										Previous
+										</Button>
+										<span>{`${currentImage + 1} of ${imagesToShow.length}`}</span>
+										<Button
+											type="text"
+											style={{ color: '#fff', marginLeft: '10px' }}
+											onClick={() => setCurrentImage((currentImage + 1) % imagesToShow.length)}
+										>
+											Next
+										</Button>
+									</>
+								);
+						})()}
 					</div>
 				</div>
 			</Modal>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, message, Card, Typography } from 'antd';
 import axios from 'axios';
+import api from '../../services/api';
 
 const { Title, Text } = Typography;
 
@@ -10,7 +11,7 @@ const ForgotPassword = () => {
 	const handleSubmit = async (values) => {
 		setLoading(true);
 		try {
-			await axios.post('/api/auth/forgot-password', values);
+			await api.post('/auth/forgot-password', values);
 			message.success('Password reset email sent!');
 		} catch (err) {
 			message.error(err.response?.data?.message || 'Something went wrong');

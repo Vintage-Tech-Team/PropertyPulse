@@ -232,7 +232,7 @@ const PropertyListing = () => {
 				style={{ width: '100%' }}
 			>
 				<Radio.Button value="split">
-					<BarsOutlined /> List+Map
+					<BarsOutlined /> List & Map
 				</Radio.Button>
 				<Radio.Button value="grid">
 					<AppstoreOutlined /> Grid
@@ -308,20 +308,37 @@ const PropertyListing = () => {
 								>
 									{!isMobile ? (
 										// Desktop Grid View
-										<div>
-											<img
-												src={property.imageUrls?.[0] || 'placeholder.jpg'}
-												alt={property.name}
-												style={{
-													width: '100%',
-													height: '200px',
-													objectFit: 'cover',
-													borderRadius: '4px',
-												}}
-											/>
-											<h4 style={{ marginTop: '8px', color: isDarkMode ? '#fff' : '#000' }}>{property.name}</h4>
-											<p>{property.address?.city}</p>
-											<Rate disabled allowHalf value={property?.averageRating || 0} />
+										<div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+											<div>
+												<img
+													src={property.imageUrls?.[0] || 'placeholder.jpg'}
+													alt={property.name}
+													style={{
+														width: '100%',
+														height: '200px',
+														objectFit: 'cover',
+														borderRadius: '4px',
+													}}
+												/>
+												<h4 style={{ marginTop: '8px', color: isDarkMode ? '#fff' : '#000' }}>{property.name}</h4>
+												<p>{property.address?.city}</p>
+												<Rate disabled allowHalf value={property?.averageRating || 0} />
+											</div>
+
+											{/* Footer - align View button to end on desktop, full-width on mobile */}
+											<div style={{ marginTop: 8, display: 'flex', justifyContent: isMobile ? 'stretch' : 'flex-end' }}>
+												<Button
+													size="small"
+													type="primary"
+													block={isMobile}
+													onClick={(e) => {
+														e.stopPropagation();
+														handleCardClick(property._id);
+													}}
+												>
+													Reviews
+												</Button>
+											</div>
 										</div>
 									) : (
 										// Mobile List View
@@ -342,6 +359,19 @@ const PropertyListing = () => {
 												<h4 style={{ margin: '0 0 4px 0', color: isDarkMode ? '#fff' : '#000' }}>{property.name}</h4>
 												<p style={{ margin: '0 0 4px 0' }}>{property.address?.city}</p>
 												<Rate disabled allowHalf value={property?.averageRating || 0} />
+												{/* View button on mobile list card */}
+												<div style={{ marginTop: 8 }}>
+													<Button
+														size="small"
+														type="primary"
+														onClick={(e) => {
+															e.stopPropagation();
+															handleCardClick(property._id);
+														}}
+													>
+														Reviews
+													</Button>
+												</div>
 											</Col>
 										</Row>
 									)}
@@ -404,17 +434,37 @@ const PropertyListing = () => {
 											)}
 										</Col>
 										<Col xs={24} sm={18}>
-											<h3 style={{ margin: '0 0 8px 0' }}>{property.name}</h3>
-											<p style={{ margin: '0 0 8px 0', lineHeight: '1.6', fontSize: '14px' }}>
-												<strong>House No.:</strong> {property.address?.houseNumber || 'N/A'},<br />
-												<strong>Street:</strong> {property.address?.street || 'N/A'},<br />
-												<strong>Block:</strong> {property.address?.block || 'N/A'},<br />
-												<strong>Society/Town:</strong> {property.address?.societyTown || 'N/A'},<br />
-												<strong>City:</strong> {property.address?.city || 'N/A'}
-											</p>
+											{/* Use a column flex container so the button can be aligned to the end responsively */}
+											<div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+												<div>
+													<h3 style={{ margin: '0 0 8px 0' }}>{property.name}</h3>
+													<p style={{ margin: '0 0 8px 0', lineHeight: '1.6', fontSize: '14px' }}>
+														<strong>House No.:</strong> {property.address?.houseNumber || 'N/A'},<br />
+														<strong>Street:</strong> {property.address?.street || 'N/A'},<br />
+														<strong>Block:</strong> {property.address?.block || 'N/A'},<br />
+														<strong>Society/Town:</strong> {property.address?.societyTown || 'N/A'},<br />
+														<strong>City:</strong> {property.address?.city || 'N/A'}
+													</p>
 
-											<p style={{ margin: '0 0 8px 0' }}>Owner: {property.owner}</p>
-											<Rate disabled allowHalf value={property?.averageRating || 0} />
+													<p style={{ margin: '0 0 8px 0' }}>Owner: {property.owner}</p>
+													<Rate disabled allowHalf value={property?.averageRating || 0} />
+												</div>
+
+												{/* Footer - aligns button to end; becomes full-width on mobile */}
+												<div style={{ marginTop: 8, display: 'flex', justifyContent: isMobile ? 'stretch' : 'flex-end' }}>
+													<Button
+														size="small"
+														type="primary"
+														block={isMobile}
+														onClick={(e) => {
+															e.stopPropagation();
+															handleCardClick(property._id);
+														}}
+													>
+														Reviews
+													</Button>
+												</div>
+											</div>
 										</Col>
 									</Row>
 								</Card>
@@ -522,7 +572,7 @@ const PropertyListing = () => {
 					</Col>
 
 					{/* View Mode Selector */}
-					<Col xs={24} sm={12} md={4} lg={4}>
+					<Col xs={24} sm={12} md={4} lg={6}>
 						{renderViewModeSelector()}
 					</Col>
 				</Row>

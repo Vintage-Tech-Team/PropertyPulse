@@ -38,3 +38,33 @@ code {
     border-color: #303030;
     color: #ffffff;
 }
+.ant-btn-primary {
+  background: #001529 !important;
+  border-color: #001529 !important;
+}
+
+.ant-btn-primary:hover {
+  background: rgba(0, 0, 0, 0.70) !important;
+  border-color: rgba(0, 0, 0, 0.70) !important;
+}
+
+/* Unselected radio button */
+.ant-radio-button-wrapper {
+  background-color: #001529 !important;
+  color: #fff !important;
+  border-color: #001529 !important;
+}
+
+/* Selected */
+.ant-radio-button-wrapper-checked {
+  background-color: rgba(0, 0, 0, 0.78) !important;
+  border-color: rgba(0, 0, 0, 0.78) !important;
+  color: #fff !important;
+}
+
+/* Hover */
+.ant-radio-button-wrapper:hover {
+  background-color: #001529CC !important;
+  color: #fff !important;
+}
+

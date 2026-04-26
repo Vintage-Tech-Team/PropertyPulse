@@ -501,7 +501,7 @@ const PropertyMap = ({
 					style={{
 						position: 'absolute',
 						bottom: '20px',
-						right: '20px',
+						left: '20px',
 						zIndex: 10,
 					}}
 				>

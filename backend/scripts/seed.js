@@ -26,6 +26,17 @@ const photos = [
 	['1460317442991-0ec209397118', '1586023492125-27b2c045efd7', '1618221195710-dd6b41faaea6'],
 	['1574362848149-11496d93a7c7', '1493809842364-78817add7ffb', '1505691938895-1758d7feb511'],
 	['1580587771525-78b9dba3b914', '1600210492486-724fe5c67fb0', '1484154218962-a197022b5858'],
+	['1605276374104-dee2a0ed3cd6', '1522708323590-d24dbb6b0267', '1505691938895-1758d7feb511'],
+	['1625602812206-5ec545ca1231', '1600607687939-ce8a6c25118c', '1616594039964-ae9021a400a0'],
+	['1515263487990-61b07816b324', '1595526114035-0d45ed16cfbf', '1484154218962-a197022b5858'],
+	['1512917774080-9991f1c4c750', '1600566753190-17f0baa2a6c3', '1618221195710-dd6b41faaea6'],
+	['1583608205776-bfd35f0d9f83', '1493809842364-78817add7ffb', '1505691938895-1758d7feb511'],
+	['1600047509807-ba8f99d2cdde', '1600210492486-724fe5c67fb0', '1617806118233-18e1de247200'],
+	['1600585154340-be6161a56a0c', '1560448204-e02f11c3d0e2', '1616594039964-ae9021a400a0'],
+	['1592595896551-12b371d546d5', '1586023492125-27b2c045efd7', '1499916078039-922301b0eb9b'],
+	['1512915922686-57c11dde9b6b', '1600573472550-8090b5e0745e', '1522708323590-d24dbb6b0267'],
+	['1576941089067-2de3c901e126', '1493809842364-78817add7ffb', '1484154218962-a197022b5858'],
+	['1494526585095-c41746248156', '1600607687939-ce8a6c25118c', '1617806118233-18e1de247200'],
 ].map((ids) => ids.map(unsplash));
 
 const users = [
@@ -46,6 +57,17 @@ const listings = [
 	{ name: 'Gulberg Office-Ready Flat', owner: 'Zain Abbasi', societyTown: 'Gulberg III', block: 'MM Alam Road', street: 'Main Road', houseNumber: '55', apartmentNumber: '7', city: 'Lahore', state: 'Punjab', lat: 31.5107, lng: 74.3519, description: 'Spacious flat on MM Alam Road, suitable for small offices.' },
 	{ name: 'Clifton Sea-View Apartment', owner: 'Mehwish Siddiqui', societyTown: 'Clifton', block: 'Block 2', street: 'Khayaban-e-Roomi', houseNumber: '14', apartmentNumber: '11C', city: 'Karachi', state: 'Sindh', lat: 24.8138, lng: 67.0300, description: 'Sea-facing 3-bed apartment with lift and generator.' },
 	{ name: 'Unverified Listing (pending)', owner: 'Test Owner', societyTown: 'I-8', block: 'I-8/4', street: 'Street 20', houseNumber: '5', city: 'Islamabad', state: 'Islamabad Capital Territory', lat: 33.6676, lng: 73.0758, description: 'Awaiting admin verification - should only appear in the admin panel.', verified: false },
+	{ name: 'Johar Town Corner House', owner: 'Tariq Mehmood', societyTown: 'Johar Town', block: 'Block J', street: 'Street 14', houseNumber: '72', city: 'Lahore', state: 'Punjab', lat: 31.475, lng: 74.29, description: '5 marla corner house near Emporium Mall with a small front lawn.' },
+	{ name: 'Model Town Kanal Home', owner: 'Saima Rauf', societyTown: 'Model Town', block: 'Block G', street: 'Link Road', houseNumber: '41', city: 'Lahore', state: 'Punjab', lat: 31.4833, lng: 74.3242, description: 'Spacious 1 kanal family home with a covered porch and mature trees.' },
+	{ name: 'Cantt Garden Apartment', owner: 'Col. (R) Asif Iqbal', societyTown: 'Lahore Cantt', block: 'Sarwar Road', street: 'Sarwar Road', houseNumber: '9', apartmentNumber: '4A', city: 'Lahore', state: 'Punjab', lat: 31.51, lng: 74.39, description: 'Quiet 2-bed apartment in a secure compound close to Fortress Stadium.' },
+	{ name: 'Bahria Town Lahore Villa', owner: 'Hamza Sheikh', societyTown: 'Bahria Town Lahore', block: 'Sector C', street: 'Overseas Boulevard', houseNumber: '118', city: 'Lahore', state: 'Punjab', lat: 31.37, lng: 74.18, description: 'Modern villa with a pool, solar panels and 24/7 gated security.' },
+	{ name: 'Wapda Town Family House', owner: 'Nusrat Bibi', societyTown: 'Wapda Town', block: 'Block E2', street: 'Street 6', houseNumber: '230', city: 'Lahore', state: 'Punjab', lat: 31.43, lng: 74.265, description: '10 marla double-storey house in a family-friendly block near the park.' },
+	{ name: 'DHA Phase 6 Modern House', owner: 'Omer Farooq', societyTown: 'DHA Phase 6', block: 'Block L', street: 'Street 3', houseNumber: '15', city: 'Lahore', state: 'Punjab', lat: 31.47, lng: 74.46, description: 'Contemporary house with double-height lounge and underground water tank.' },
+	{ name: 'F-7 Garden House', owner: 'Ayesha Durrani', societyTown: 'F-7', block: 'F-7/3', street: 'Street 26', houseNumber: '7', city: 'Islamabad', state: 'Islamabad Capital Territory', lat: 33.7215, lng: 73.056, description: 'Renovated house with a large garden, walking distance to Jinnah Super.' },
+	{ name: 'DHA Phase 2 Islamabad Home', owner: 'Waqar Ali', societyTown: 'DHA Phase 2', block: 'Sector D', street: 'Street 11', houseNumber: '64', city: 'Islamabad', state: 'Islamabad Capital Territory', lat: 33.53, lng: 73.16, description: 'Brand-new 1 kanal home with a lawn, near the GT Road entrance.' },
+	{ name: 'DHA Phase 8 Sea Breeze Flat', owner: 'Sana Qureshi', societyTown: 'DHA Phase 8', block: 'Zone A', street: 'Seaview Avenue', houseNumber: '3', apartmentNumber: '9B', city: 'Karachi', state: 'Sindh', lat: 24.79, lng: 67.06, description: 'High-floor apartment with sea breeze, lift, generator and covered parking.' },
+	{ name: 'Chaklala Scheme 3 Cottage', owner: 'Rizwan Akhtar', societyTown: 'Chaklala Scheme 3', block: 'Block B', street: 'Street 8', houseNumber: '19', city: 'Rawalpindi', state: 'Punjab', lat: 33.585, lng: 73.09, description: 'Cosy single-storey house close to the airport road and markets.' },
+	{ name: 'Gulgasht Colony House', owner: 'Farah Naz', societyTown: 'Gulgasht Colony', block: 'Block L', street: 'Bosan Road', houseNumber: '88', city: 'Multan', state: 'Punjab', lat: 30.22, lng: 71.47, description: 'Well-kept 8 marla house off Bosan Road, near schools and hospitals.' },
 ];
 
 const comments = [

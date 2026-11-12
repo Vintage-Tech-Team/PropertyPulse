@@ -1,109 +1,303 @@
 .container {
+    --ink: #10262b;
+    --muted: #5b6b70;
+    --green: #2e8b6a;
+    --green-light: #5cc29a;
+    --cream: #faf8f4;
+    --mint: #e8f4ee;
+    --line: #e3e0d9;
+
     min-height: 100vh;
     display: flex;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--ink);
 }
 
-.logoSection {
-    flex: 1;
-    background: #f0f2f5;
+/* Left: photo panel */
+.hero {
+    flex: 0 0 54%;
+    position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
+    justify-content: space-between;
+    padding: 48px 72px 28px;
+    color: #fff;
+    /* Gradient keeps text legible over the photo; solid colour shows if the photo is missing */
+    background:
+        linear-gradient(180deg, rgba(10, 24, 26, 0.35) 0%, rgba(10, 24, 26, 0.05) 30%, rgba(10, 24, 26, 0.25) 55%, rgba(10, 24, 26, 0.7) 100%),
+        var(--hero-image, none) center / cover no-repeat,
+        #1d3a35;
 }
 
+.heroTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand,
+.mobileBrand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.brandAccent {
+    color: var(--green-light);
+}
+
+.logoMark {
+    width: 34px;
+    height: 34px;
+    color: var(--green-light);
+}
+
+.heroTag,
+.heroBottom {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.heroBody {
+    margin-top: auto;
+    margin-bottom: 64px;
+}
+
+.eyebrowLight,
+.eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 20px;
+}
+
+.eyebrowLight::before,
+.eyebrow::before {
+    content: '';
+    width: 22px;
+    height: 2px;
+    background: var(--green-light);
+}
+
+.eyebrowLight {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.heroTitle {
+    margin: 0 0 20px;
+    color: #fff;
+    font-size: clamp(44px, 5vw, 72px);
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+}
+
+.heroSubtitle {
+    margin: 0;
+    font-size: 17px;
+    opacity: 0.9;
+}
+
+.heroBottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.liveStatus {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.liveDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green-light);
+    box-shadow: 0 0 0 4px rgba(92, 194, 154, 0.3);
+}
+
+/* Right: form panel */
 .formSection {
     flex: 1;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-    background: #ffffff;
+    flex-direction: column;
+    background: var(--cream);
+    padding: 48px 32px 28px;
 }
 
 .formWrapper {
     width: 100%;
-    max-width: 400px;
-    padding: 2rem;
+    max-width: 410px;
+    margin: auto;
 }
 
-.logo {
-    width: 80%;
-    max-width: 400px;
+.mobileBrand {
+    display: none;
+    color: var(--ink);
+    margin-bottom: 40px;
 }
 
-.logoText {
-    font-size: 1.2rem;
-    margin-top: 2rem;
+.mobileBrand .brandAccent,
+.mobileBrand .logoMark {
+    color: var(--green);
+}
+
+.eyebrow {
+    color: var(--green);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.eyebrow::before {
+    background: var(--green);
+}
+
+.title {
+    margin: 0 0 10px;
+    color: var(--ink);
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+}
+
+.subtitle {
+    margin: 0 0 32px;
+    color: var(--muted);
+    font-size: 15px;
+}
+
+.form :global(.ant-form-item-label > label) {
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 13px;
+    width: 100%;
+}
+
+.passwordLabel {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.passwordLabel a,
+.signup a {
+    color: var(--green);
+    font-weight: 600;
+}
+
+.form :global(.ant-input-affix-wrapper),
+.form :global(.ant-input) {
+    background: #fff;
+    border-color: #cfd6d4;
+}
+
+.submit:global(.ant-btn-primary) {
+    margin-top: 8px;
+    background: var(--ink);
+    font-weight: 600;
+    box-shadow: none;
+}
+
+.submit:global(.ant-btn-primary:not(:disabled):hover) {
+    background: #1d3d43;
+}
+
+.signup {
+    margin: 20px 0 0;
     text-align: center;
-    color: #1F3B4D;
+    color: var(--muted);
+    font-size: 14px;
 }
 
-.mobileLogoContainer {
-    display: none;
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 36px 0 32px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
-.mobileLogo {
-    display: none;
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
 }
 
-@media (max-width: 576px) {
-    .logoSection {
+.privacyCard {
+    display: flex;
+    gap: 14px;
+    padding: 20px 20px 18px;
+    background: var(--mint);
+    border-radius: 4px;
+}
+
+.shieldIcon {
+    flex: 0 0 22px;
+    width: 22px;
+    height: 22px;
+    color: var(--green);
+}
+
+.privacyTitle {
+    margin: 2px 0 6px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.privacyText {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.footer {
+    margin-top: 32px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.footer span {
+    margin: 0 6px;
+}
+
+@media (max-width: 991px) {
+    .hero {
+        padding: 40px 40px 24px;
+    }
+}
+
+@media (max-width: 767px) {
+    .hero {
         display: none;
     }
 
     .formSection {
-        flex: 1 1 100%;
-        background: linear-gradient(rgba(255, 255, 255, 0.97), rgba(255, 255, 255, 0.97));
-        padding: 1rem;
-        position: relative;
+        padding: 32px 20px 24px;
     }
 
-    .formSection::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-image: url('../../assets/images/property_pulse_icon.svg');
-        background-size: 200px;
-        background-repeat: repeat;
-        background-position: center;
-        opacity: 0.05;
-        z-index: 0;
-        animation: float 20s linear infinite;
+    .mobileBrand {
+        display: inline-flex;
     }
 
-    @keyframes float {
-        0% {
-            background-position: 0 0;
-        }
-        100% {
-            background-position: 400px 400px;
-        }
+    .title {
+        font-size: 32px;
     }
-
-    .formWrapper {
-        position: relative;
-        z-index: 1;
-        background-color: rgba(255, 255, 255, 0.9);
-        border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-        backdrop-filter: blur(8px);
-    }
-
-    .mobileLogoContainer {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-
-    .mobileLogo {
-        display: block;
-        width: 150px;
-        margin-bottom: 1rem;
-    }
-} 
+}

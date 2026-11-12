@@ -1,3 +1,12 @@
+## Seeding local data
+
+Populate a local MongoDB with sample users, properties and reviews:
+
+1. Set `MONGODB_URI` and `SEED_PASSWORD` in `backend/.env` (see `backend/.env.sample`).
+2. Run `npm run seed --workspace=backend`.
+
+This creates an admin (`admin@propertypulse.test`) and four tenants (`ayesha@`, `bilal@`, `sara@`, `usman@propertypulse.test`), all verified and using `SEED_PASSWORD`. It also creates 8 verified properties plus 1 unverified one, and reviews (approved, with one pending per property). Re-running replaces only previously seeded records. The script refuses to run when `NODE_ENV=production`.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

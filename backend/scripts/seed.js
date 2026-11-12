@@ -14,7 +14,19 @@ if (process.env.NODE_ENV === 'production') throw new Error('Refusing to seed wit
 const password = process.env.SEED_PASSWORD;
 if (!password) throw new Error('SEED_PASSWORD missing from backend/.env');
 
-const img = (seed, n = 3) => Array.from({ length: n }, (_, i) => `https://picsum.photos/seed/${seed}-${i}/800/600`);
+// Dummy photos from Unsplash, one set per listing below (same order). The first photo is the card image.
+const unsplash = (id) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1200&q=80`;
+const photos = [
+	['1545324418-cc1a3fa10c00', '1522708323590-d24dbb6b0267', '1484154218962-a197022b5858'],
+	['1568605114967-8130f3a36994', '1600607687939-ce8a6c25118c', '1505691938895-1758d7feb511'],
+	['1502672260266-1c1ef2d93688', '1616594039964-ae9021a400a0', '1595526114035-0d45ed16cfbf'],
+	['1570129477492-45c003edd2be', '1493809842364-78817add7ffb', '1586023492125-27b2c045efd7'],
+	['1600596542815-ffad4c1539a9', '1600566753190-17f0baa2a6c3', '1600210492486-724fe5c67fb0'],
+	['1564013799919-ab600027ffc6', '1560448204-e02f11c3d0e2', '1499916078039-922301b0eb9b'],
+	['1460317442991-0ec209397118', '1586023492125-27b2c045efd7', '1618221195710-dd6b41faaea6'],
+	['1574362848149-11496d93a7c7', '1493809842364-78817add7ffb', '1505691938895-1758d7feb511'],
+	['1580587771525-78b9dba3b914', '1600210492486-724fe5c67fb0', '1484154218962-a197022b5858'],
+].map((ids) => ids.map(unsplash));
 
 const users = [
 	{ name: 'Admin User', email: 'admin@propertypulse.test', role: 'admin' },
@@ -82,7 +94,7 @@ async function main() {
 			owner: l.owner,
 			address: address._id,
 			verified: l.verified ?? true,
-			imageUrls: img(`pp${i}`),
+			imageUrls: photos[i],
 			createdBy: tenants[i % tenants.length]._id,
 			electricityBillImage: `https://picsum.photos/seed/bill${i}/600/800`,
 			consumerId,

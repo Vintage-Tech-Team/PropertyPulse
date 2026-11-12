@@ -195,7 +195,7 @@
 }
 
 .passwordLabel a,
-.signup a {
+.switchLink a {
     color: var(--green);
     font-weight: 600;
 }
@@ -206,18 +206,18 @@
     border-color: #cfd6d4;
 }
 
-.submit:global(.ant-btn-primary) {
+.form :global(.ant-btn-primary) {
     margin-top: 8px;
     background: var(--ink);
     font-weight: 600;
     box-shadow: none;
 }
 
-.submit:global(.ant-btn-primary:not(:disabled):hover) {
+.form :global(.ant-btn-primary:not(:disabled):hover) {
     background: #1d3d43;
 }
 
-.signup {
+.switchLink {
     margin: 20px 0 0;
     text-align: center;
     color: var(--muted);

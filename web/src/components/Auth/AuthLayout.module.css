@@ -1,0 +1,307 @@
+.container {
+    --ink: #10262b;
+    --muted: #5b6b70;
+    --green: #2e8b6a;
+    --green-light: #5cc29a;
+    --cream: #faf8f4;
+    --mint: #e8f4ee;
+    --line: #e3e0d9;
+
+    /* Exactly one screen tall: the page never scrolls; on very short screens only the form column does */
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--ink);
+}
+
+/* Left: photo panel */
+.hero {
+    flex: 0 0 54%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 48px 72px 28px;
+    color: #fff;
+    /* Gradient keeps text legible over the photo; solid colour shows if the photo is missing */
+    background:
+        linear-gradient(180deg, rgba(10, 24, 26, 0.55) 0%, rgba(10, 24, 26, 0.1) 25%, rgba(10, 24, 26, 0.05) 35%, rgba(10, 24, 26, 0.25) 55%, rgba(10, 24, 26, 0.7) 100%),
+        var(--hero-image, none) center / cover no-repeat,
+        #1d3a35;
+}
+
+.heroTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand,
+.mobileBrand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.brandAccent {
+    color: var(--green-light);
+}
+
+.logoMark {
+    width: 34px;
+    height: 34px;
+    color: var(--green-light);
+}
+
+.heroTag,
+.heroBottom {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.heroBody {
+    margin-top: auto;
+    margin-bottom: 64px;
+}
+
+.eyebrowLight,
+.eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 20px;
+}
+
+.eyebrowLight::before,
+.eyebrow::before {
+    content: '';
+    width: 22px;
+    height: 2px;
+    background: var(--green-light);
+}
+
+.eyebrowLight {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.heroTitle {
+    margin: 0 0 20px;
+    color: #fff;
+    font-size: clamp(44px, 5vw, 72px);
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+}
+
+.heroSubtitle {
+    margin: 0;
+    font-size: 17px;
+    opacity: 0.9;
+}
+
+.heroBottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.liveStatus {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.liveDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green-light);
+    box-shadow: 0 0 0 4px rgba(92, 194, 154, 0.3);
+}
+
+/* Right: form panel */
+.formSection {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--cream);
+    padding: 32px 32px 20px;
+    overflow-y: auto;
+}
+
+.formWrapper {
+    width: 100%;
+    max-width: 410px;
+    margin: auto;
+}
+
+.mobileBrand {
+    display: none;
+    color: var(--ink);
+    margin-bottom: 40px;
+}
+
+.mobileBrand .brandAccent,
+.mobileBrand .logoMark {
+    color: var(--green);
+}
+
+.eyebrow {
+    color: var(--green);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.eyebrow::before {
+    background: var(--green);
+}
+
+.title {
+    margin: 0 0 10px;
+    color: var(--ink);
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+}
+
+.subtitle {
+    margin: 0 0 32px;
+    color: var(--muted);
+    font-size: 15px;
+}
+
+.form :global(.ant-form-item-label > label) {
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 13px;
+    width: 100%;
+}
+
+.passwordLabel {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.passwordLabel a,
+.switchLink a {
+    color: var(--green);
+    font-weight: 600;
+}
+
+.form :global(.ant-input-affix-wrapper),
+.form :global(.ant-input) {
+    background: #fff;
+    border-color: #cfd6d4;
+}
+
+.form :global(.ant-btn-primary) {
+    margin-top: 8px;
+    background: var(--ink);
+    font-weight: 600;
+    box-shadow: none;
+}
+
+.form :global(.ant-btn-primary:not(:disabled):hover) {
+    background: #1d3d43;
+}
+
+.switchLink {
+    margin: 20px 0 0;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 28px 0 24px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+}
+
+.privacyCard {
+    display: flex;
+    gap: 14px;
+    padding: 20px 20px 18px;
+    background: var(--mint);
+    border-radius: 4px;
+}
+
+.shieldIcon {
+    flex: 0 0 22px;
+    width: 22px;
+    height: 22px;
+    color: var(--green);
+}
+
+.privacyTitle {
+    margin: 2px 0 6px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.privacyText {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.footer {
+    margin-top: 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.footer span {
+    margin: 0 6px;
+}
+
+@media (max-width: 991px) {
+    .hero {
+        padding: 40px 40px 24px;
+    }
+}
+
+@media (max-width: 767px) {
+    .hero {
+        display: none;
+    }
+
+    .formSection {
+        padding: 32px 20px 24px;
+    }
+
+    .mobileBrand {
+        display: inline-flex;
+    }
+
+    .title {
+        font-size: 32px;
+    }
+}

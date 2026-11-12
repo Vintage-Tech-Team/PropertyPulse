@@ -8,8 +8,7 @@
     --chip-active: #e3f0f2;
     --star: #e0a526;
 
-    box-sizing: border-box;
-    height: calc(100vh - 104px); /* header 64px + content padding 2 × 20px */
+    /* The whole page scrolls; only the map stays put (see .mapColumn) */
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -99,11 +98,9 @@
 
 /* Main panel */
 .panel {
-    flex: 1;
-    min-height: 0;
     display: grid;
     grid-template-columns: minmax(380px, 46%) 1fr;
-    overflow: hidden;
+    align-items: start; /* lets the map column stick while the list grows */
     border: 1px solid var(--line);
     border-radius: 14px;
     background: var(--surface);
@@ -275,9 +272,6 @@
 }
 
 .list {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -435,10 +429,18 @@
 }
 
 /* Map column */
+/* Map stays in view while the page scrolls the list */
 .mapColumn {
-    position: relative;
+    position: sticky;
+    top: 84px; /* 64px header + 20px gutter */
+    height: calc(100vh - 104px);
     min-width: 0;
-    min-height: 0;
+    overflow: hidden;
+    border-radius: 0 14px 14px 0;
+}
+
+.panelMap .mapColumn {
+    border-radius: 14px;
 }
 
 .panelGrid .mapColumn {
@@ -491,25 +493,17 @@
     font-weight: 600;
 }
 
-/* On phones the page scrolls normally instead of fitting one screen */
 @media (max-width: 767px) {
     .page {
-        height: auto;
         gap: 14px;
         padding: 0;
     }
 
-    .panel {
-        overflow: visible;
-    }
-
-    .list {
-        overflow: visible;
-    }
-
+    /* Map view on phones: a fixed-height map, not sticky */
     .mapColumn {
+        position: relative;
+        top: auto;
         height: 70vh;
-        overflow: hidden;
         border-radius: 14px;
     }
 

@@ -269,9 +269,13 @@ const PropertyListing = () => {
 			}),
 		);
 
-		// The map no longer shows the selected city once it's moved manually
+		// The map also reports a move after recentering on a city chip, so only clear the
+		// city once the map has actually been moved away from it (~1 km)
 		if (selectedCity) {
-			setSelectedCity(null);
+			const [lng, lat] = PAKISTANI_CITIES[selectedCity].coordinates;
+			if (Math.abs(viewState.latitude - lat) > 0.01 || Math.abs(viewState.longitude - lng) > 0.01) {
+				setSelectedCity(null);
+			}
 		}
 	};
 

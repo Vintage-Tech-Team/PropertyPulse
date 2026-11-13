@@ -15,6 +15,7 @@
 /build
 /dist
 /web/build
+/admin/build
 
 # misc
 .DS_Store

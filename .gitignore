@@ -45,3 +45,5 @@ next-env.d.ts
 
 # Cache
 .cache/
+# Local uploads (used when S3 is not configured)
+/backend/uploads

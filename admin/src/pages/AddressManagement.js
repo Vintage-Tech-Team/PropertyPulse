@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Input, message, Row, Col } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Table, Button, Modal, Form, Input, InputNumber, message, Pagination, Row, Col, Typography } from 'antd';
+import { DeleteOutlined, PlusOutlined, SearchOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { debounce } from 'lodash';
 import { fetchAddresses, addAddress, deleteAddress } from '../services/addressService';
 import IconAction from '../components/IconAction';
 import useServerSort from '../hooks/useServerSort';
+import './PropertyManagement.css';
 
-const { Search } = Input;
+const { Text } = Typography;
 
 const AddressManagement = () => {
 	const [addresses, setAddresses] = useState([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [saving, setSaving] = useState(false);
 	const [form] = Form.useForm();
 	const [loading, setLoading] = useState(false);
 	const [pagination, setPagination] = useState({
@@ -21,25 +24,24 @@ const AddressManagement = () => {
 	const [searchQuery, setSearchQuery] = useState('');
 	const { sort, sortable, handleSorter } = useServerSort();
 
-	// Load addresses with optional search query
+	// Load addresses using the current search + sort
 	const loadAddresses = async (params = {}) => {
 		setLoading(true);
 		try {
 			const { page = pagination.current, limit = pagination.pageSize } = params;
 			const data = await fetchAddresses({
-				...params,
 				page,
 				limit,
 				query: searchQuery || undefined,
 				...sort,
 			});
 			setAddresses(data.addresses);
-			setPagination({
-				...pagination,
-				current: data.page,
+			setPagination((prev) => ({
+				...prev,
+				current: Number(data.page) || page,
 				total: data.total,
-				pageSize: data.limit,
-			});
+				pageSize: Number(data.limit) || limit,
+			}));
 		} catch (err) {
 			message.error('Failed to fetch addresses');
 		} finally {
@@ -47,45 +49,29 @@ const AddressManagement = () => {
 		}
 	};
 
-	// Handle form submission for adding address
-	const onSubmit = async (values) => {
-		try {
-			const formattedValues = {
-				...values,
-				postalCode: '54000',
-				location: {
-					lat: parseFloat(values.lat),
-					lng: parseFloat(values.lng),
-				},
-			};
-			delete formattedValues.lat;
-			delete formattedValues.lng;
+	const closeModal = () => {
+		setIsModalOpen(false);
+		form.resetFields();
+	};
 
-			await addAddress(formattedValues);
+	// Handle form submission for adding address
+	const onSubmit = async ({ lat, lng, ...rest }) => {
+		setSaving(true);
+		try {
+			await addAddress({ ...rest, location: { lat, lng } });
 			message.success('Address added successfully!');
-			setIsModalOpen(false);
-			form.resetFields();
+			closeModal();
 			loadAddresses();
 		} catch (err) {
-			message.error('Failed to add address');
+			const detail = err.response?.data?.error || err.response?.data?.message;
+			message.error(detail ? `Failed to add address: ${detail}` : 'Failed to add address');
+		} finally {
+			setSaving(false);
 		}
 	};
 
-	// Handle search input
-	const handleSearch = (value) => {
-		setSearchQuery(value);
-	};
-
-	const handleTableChange = (paginationParams, _filters, sorter, extra) => {
-		if (extra?.action === 'sort') {
-			handleSorter(sorter);
-			return;
-		}
-		loadAddresses({
-			page: paginationParams.current,
-			limit: paginationParams.pageSize,
-		});
-	};
+	const debouncedSearch = useMemo(() => debounce((value) => setSearchQuery(value.trim()), 400), []);
+	useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
 
 	const handleDelete = async (id) => {
 		try {
@@ -101,110 +87,232 @@ const AddressManagement = () => {
 		loadAddresses({ page: 1 });
 	}, [searchQuery, sort]);
 
+	const columns = [
+		{
+			title: '#',
+			key: 'serialNumber',
+			width: 56,
+			render: (_, __, index) => (
+				<span className="pp-muted">{(pagination.current - 1) * pagination.pageSize + index + 1}</span>
+			),
+		},
+		{
+			title: 'Society / Town',
+			dataIndex: 'societyTown',
+			width: 240,
+			...sortable('societyTown'),
+			render: (societyTown, record) => (
+				<div className="pp-cell-stack">
+					<span className="pp-strong">{societyTown || '—'}</span>
+					<Text className="pp-id" copyable={{ text: record._id, tooltips: ['Copy ID', 'Copied'] }}>
+						{record._id.slice(-8)}
+					</Text>
+				</div>
+			),
+		},
+		{
+			title: 'Street',
+			dataIndex: 'street',
+			width: 220,
+			...sortable('street'),
+			render: (street, record) => (
+				<div className="pp-cell-stack">
+					<span>{street || '—'}</span>
+					<span className="pp-muted pp-small">
+						{[
+							record.houseNumber && `House ${record.houseNumber}`,
+							record.apartmentNumber && `Apt ${record.apartmentNumber}`,
+							record.block && `Block ${record.block}`,
+						]
+							.filter(Boolean)
+							.join(' · ') || '—'}
+					</span>
+				</div>
+			),
+		},
+		{
+			title: 'City',
+			dataIndex: 'city',
+			width: 140,
+			...sortable('city'),
+			render: (city) => (
+				<span className="pp-city">
+					<EnvironmentOutlined /> {city}
+				</span>
+			),
+		},
+		{ title: 'State', dataIndex: 'state', width: 130, ...sortable('state') },
+		{ title: 'Country', dataIndex: 'country', width: 120, ...sortable('country') },
+		{
+			title: 'Coordinates',
+			key: 'location',
+			width: 170,
+			render: (_, record) =>
+				record.location?.lat != null ? (
+					<span className="pp-coords">
+						{Number(record.location.lat).toFixed(5)}, {Number(record.location.lng).toFixed(5)}
+					</span>
+				) : (
+					'—'
+				),
+		},
+		{
+			title: '',
+			key: 'actions',
+			width: 70,
+			align: 'right',
+			render: (_, record) => (
+				<IconAction
+					icon={<DeleteOutlined />}
+					label="Delete"
+					tone="danger"
+					confirm="Delete this address?"
+					confirmDescription="This can't be undone."
+					okText="Delete"
+					onConfirm={() => handleDelete(record._id)}
+				/>
+			),
+		},
+	];
+
 	return (
-		<div>
-			<Row gutter={[16, 16]} align="middle" style={{ marginBottom: '20px' }}>
-				<Col>
-					<Button type="primary" onClick={() => setIsModalOpen(true)}>
-						Add Address
-					</Button>
-				</Col>
+		<div className="pp-page">
+			{/* Toolbar */}
+			<div className="pp-toolbar">
+				<Input
+					className="pp-search"
+					prefix={<SearchOutlined style={{ color: '#9db0b4' }} />}
+					placeholder="Search by society, street or city"
+					allowClear
+					onChange={(e) => debouncedSearch(e.target.value)}
+				/>
+				<Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalOpen(true)} className="pp-add">
+					Add address
+				</Button>
+			</div>
 
-				<Col>
-					<Search placeholder="Search by address fields" onSearch={handleSearch} enterButton style={{ width: 400 }} />
-				</Col>
-			</Row>
+			{/* Table */}
+			<div className="pp-table-wrap">
+				<Table
+					loading={loading}
+					dataSource={addresses}
+					rowKey="_id"
+					pagination={false}
+					sticky
+					scroll={{ x: 1150 }}
+					onChange={(_, __, sorter) => handleSorter(sorter)}
+					showSorterTooltip={false}
+					columns={columns}
+				/>
+			</div>
 
-			<Table
-				loading={loading}
-				dataSource={addresses}
-				rowKey="_id"
-				scroll={{ y: 'calc(100vh - 300px)' }}
-				pagination={{
-					current: pagination.current,
-					pageSize: pagination.pageSize,
-					total: pagination.total,
-					showSizeChanger: true,
-					pageSizeOptions: ['20', '30', '50'],
-					showTotal: (total) => `Total ${total} addresses`,
-					position: ['bottomCenter'],
-					style: {
-						position: 'sticky',
-						bottom: 0,
-						width: '100%',
-						padding: '10px 0',
-						backgroundColor: 'white',
-						zIndex: 1,
-						borderTop: '1px solid #f0f0f0',
-					},
-				}}
-				onChange={handleTableChange}
-				showSorterTooltip={false}
-				columns={[
-					{
-						title: 'S.No',
-						key: 'serialNumber',
-						render: (_, __, index) => (pagination.current - 1) * pagination.pageSize + index + 1,
-						width: 80,
-					},
-					{
-						title: 'ID',
-						dataIndex: '_id',
-						key: '_id',
-						width: 220,
-					},
-					{ title: 'Street', dataIndex: 'street', ...sortable('street') },
-					{ title: 'House Number', dataIndex: 'houseNumber', ...sortable('houseNumber') },
-					{ title: 'Apartment Number', dataIndex: 'apartmentNumber', ...sortable('apartmentNumber') },
-					{ title: 'City', dataIndex: 'city', ...sortable('city') },
-					{ title: 'State', dataIndex: 'state', ...sortable('state') },
-					{ title: 'Country', dataIndex: 'country', ...sortable('country') },
-					{ title: 'Latitude', dataIndex: ['location', 'lat'] },
-					{ title: 'Longitude', dataIndex: ['location', 'lng'] },
-					{
-						title: 'Actions',
-						key: 'actions',
-						width: 80,
-						render: (_, record) => (
-							<IconAction
-								icon={<DeleteOutlined />}
-								label="Delete"
-								tone="danger"
-								confirm="Delete this address?"
-								confirmDescription="This can't be undone."
-								okText="Delete"
-								onConfirm={() => handleDelete(record._id)}
-							/>
-						),
-					},
-				]}
-			/>
-			<Modal title="Add Address" open={isModalOpen} onCancel={() => setIsModalOpen(false)} onOk={() => form.submit()}>
-				<Form form={form} onFinish={onSubmit}>
-					<Form.Item name="street" rules={[{ required: true, message: 'Street is required' }]}>
-						<Input placeholder="Street" />
-					</Form.Item>
-					<Form.Item name="houseNumber">
-						<Input placeholder="House Number" />
-					</Form.Item>
-					<Form.Item name="apartmentNumber">
-						<Input placeholder="Apartment Number" />
-					</Form.Item>
-					<Form.Item name="city" rules={[{ required: true, message: 'City is required' }]}>
-						<Input placeholder="City" />
-					</Form.Item>
-					<Form.Item name="state" rules={[{ required: true, message: 'State is required' }]}>
-						<Input placeholder="State" />
-					</Form.Item>
-					<Form.Item name="country" rules={[{ required: true, message: 'Country is required' }]}>
-						<Input placeholder="Country" />
-					</Form.Item>
-					<Form.Item name="lat" rules={[{ required: true, message: 'Latitude is required' }]}>
-						<Input placeholder="Latitude" />
-					</Form.Item>
-					<Form.Item name="lng" rules={[{ required: true, message: 'Longitude is required' }]}>
-						<Input placeholder="Longitude" />
-					</Form.Item>
+			{/* Pagination */}
+			<div className="pp-footer">
+				<span className="pp-muted">
+					{pagination.total
+						? `Showing ${(pagination.current - 1) * pagination.pageSize + 1}–${Math.min(
+								pagination.current * pagination.pageSize,
+								pagination.total,
+						  )} of ${pagination.total} addresses`
+						: 'No addresses'}
+				</span>
+				<Pagination
+					current={pagination.current}
+					pageSize={pagination.pageSize}
+					total={pagination.total}
+					showSizeChanger
+					pageSizeOptions={['20', '30', '50']}
+					onChange={(page, pageSize) => loadAddresses({ page, limit: pageSize })}
+				/>
+			</div>
+
+			{/* Add address */}
+			<Modal
+				title="Add address"
+				open={isModalOpen}
+				onCancel={closeModal}
+				onOk={() => form.submit()}
+				okText="Add address"
+				confirmLoading={saving}
+				width={620}
+				destroyOnClose
+			>
+				<Form
+					form={form}
+					onFinish={onSubmit}
+					layout="vertical"
+					requiredMark="optional"
+					initialValues={{ country: 'Pakistan' }}
+					style={{ marginTop: 16 }}
+				>
+					<Row gutter={16}>
+						<Col xs={24} sm={16}>
+							<Form.Item
+								label="Society / Town"
+								name="societyTown"
+								rules={[{ required: true, whitespace: true, message: 'Society / Town is required' }]}
+							>
+								<Input placeholder="e.g. DHA Phase 6" />
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={8}>
+							<Form.Item label="Block" name="block">
+								<Input placeholder="e.g. L" />
+							</Form.Item>
+						</Col>
+						<Col xs={24}>
+							<Form.Item label="Street" name="street">
+								<Input placeholder="e.g. Street 3" />
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={12}>
+							<Form.Item label="House number" name="houseNumber">
+								<Input placeholder="e.g. 24-C" />
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={12}>
+							<Form.Item label="Apartment number" name="apartmentNumber">
+								<Input placeholder="e.g. 4B" />
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={8}>
+							<Form.Item
+								label="City"
+								name="city"
+								rules={[{ required: true, whitespace: true, message: 'City is required' }]}
+							>
+								<Input placeholder="e.g. Lahore" />
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={8}>
+							<Form.Item
+								label="Province / State"
+								name="state"
+								rules={[{ required: true, whitespace: true, message: 'Province is required' }]}
+							>
+								<Input placeholder="e.g. Punjab" />
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={8}>
+							<Form.Item
+								label="Country"
+								name="country"
+								rules={[{ required: true, whitespace: true, message: 'Country is required' }]}
+							>
+								<Input />
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={12}>
+							<Form.Item label="Latitude" name="lat" rules={[{ required: true, message: 'Latitude is required' }]}>
+								<InputNumber min={-90} max={90} step={0.000001} placeholder="31.457383" style={{ width: '100%' }} />
+							</Form.Item>
+						</Col>
+						<Col xs={24} sm={12}>
+							<Form.Item label="Longitude" name="lng" rules={[{ required: true, message: 'Longitude is required' }]}>
+								<InputNumber min={-180} max={180} step={0.000001} placeholder="74.265472" style={{ width: '100%' }} />
+							</Form.Item>
+						</Col>
+					</Row>
 				</Form>
 			</Modal>
 		</div>

@@ -10,8 +10,9 @@ import {
 	LeftOutlined,
 	RightOutlined,
 	DownOutlined,
+	ArrowLeftOutlined,
 } from '@ant-design/icons';
-import { Link, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Link, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import UserManagement from './UserManagement';
 import PropertyManagement from './PropertyManagement';
 import ReviewManagement from './ReviewManagement';
@@ -60,9 +61,13 @@ const Dashboard = () => {
 	const [collapsed, setCollapsed] = useState(false);
 	const { logout } = useAuth();
 	const location = useLocation();
+	const navigate = useNavigate();
 
 	const current = menuItems.find((item) => location.pathname.startsWith(item.link)) || menuItems[0];
 	const isDetail = /^\/dashboard\/properties\/[^/]+/.test(location.pathname);
+
+	// Return to the list the user came from; fall back to it on a direct visit.
+	const goBack = () => (location.key !== 'default' ? navigate(-1) : navigate('/dashboard/properties'));
 
 	return (
 		<Layout className="pp-shell">
@@ -111,9 +116,24 @@ const Dashboard = () => {
 
 			<Layout className="pp-main" style={{ marginLeft: collapsed ? SIDER_COLLAPSED : SIDER_WIDTH }}>
 				<Header className="pp-topbar">
-					<div>
-						<h1>{isDetail ? 'Property details' : current.label}</h1>
-						<p>{isDetail ? 'Full record for this listing' : current.subtitle}</p>
+					<div className="pp-topbar__title">
+						{isDetail && (
+							<button type="button" className="pp-back" onClick={goBack}>
+								<ArrowLeftOutlined />
+								<span>Back</span>
+							</button>
+						)}
+						<div>
+							{isDetail && (
+								<div className="pp-crumbs">
+									<Link to="/dashboard/properties">Properties</Link>
+									<span>/</span>
+									<span>Details</span>
+								</div>
+							)}
+							<h1>{isDetail ? 'Property details' : current.label}</h1>
+							{!isDetail && <p>{current.subtitle}</p>}
+						</div>
 					</div>
 
 					<Dropdown
@@ -148,14 +168,7 @@ const Dashboard = () => {
 									</Scroll>
 								}
 							/>
-							<Route
-								path="addresses"
-								element={
-									<Scroll>
-										<AddressManagement />
-									</Scroll>
-								}
-							/>
+							<Route path="addresses" element={<AddressManagement />} />
 							<Route path="reviews" element={<ReviewManagement />} />
 							<Route
 								path="queries"

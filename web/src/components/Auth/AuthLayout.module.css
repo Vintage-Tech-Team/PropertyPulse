@@ -208,13 +208,13 @@
 
 .form :global(.ant-btn-primary) {
     margin-top: 8px;
-    background: var(--ink);
+    background: #2e8b6a;
     font-weight: 600;
     box-shadow: none;
 }
 
 .form :global(.ant-btn-primary:not(:disabled):hover) {
-    background: #1d3d43;
+    background: #26775a;
 }
 
 .switchLink {

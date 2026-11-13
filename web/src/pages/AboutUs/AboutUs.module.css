@@ -92,12 +92,12 @@
 
 .primaryButton,
 .primaryButton:hover {
-    background: #10262b;
+    background: #2e8b6a;
     color: #fff;
 }
 
 .primaryButton:hover {
-    background: #1d3d43;
+    background: #26775a;
 }
 
 :global(body.dark-theme) .primaryButton {

@@ -181,8 +181,8 @@
 
 .tabActive,
 .tabActive:hover {
-    background: var(--ink);
-    color: var(--surface);
+    background: #2e8b6a;
+    color: #fff;
 }
 
 .tabCount {
@@ -198,10 +198,6 @@
 .tabActive .tabCount {
     background: rgba(255, 255, 255, 0.18);
     color: inherit;
-}
-
-:global(body.dark-theme) .tabActive .tabCount {
-    background: rgba(16, 38, 43, 0.15);
 }
 
 /* Cards */

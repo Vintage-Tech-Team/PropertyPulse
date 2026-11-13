@@ -27,9 +27,9 @@ const dark = {
 
 export const getAntdTheme = (isDarkMode) => {
 	const c = isDarkMode ? dark : light;
-	// Primary buttons are dark ink on light pages and green on dark pages
-	const buttonPrimary = isDarkMode ? '#2e8b6a' : light.ink;
-	const buttonPrimaryHover = isDarkMode ? '#3fa57f' : light.inkHover;
+	// Primary buttons use the brand green in both themes
+	const buttonPrimary = '#2e8b6a';
+	const buttonPrimaryHover = isDarkMode ? '#3fa57f' : '#26775a';
 
 	return {
 		algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,

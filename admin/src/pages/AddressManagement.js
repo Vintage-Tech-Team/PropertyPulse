@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Input, message, Row, Col, Popconfirm } from 'antd';
+import { Table, Button, Modal, Form, Input, message, Row, Col } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 import { fetchAddresses, addAddress, deleteAddress } from '../services/addressService';
+import IconAction from '../components/IconAction';
+import useServerSort from '../hooks/useServerSort';
 
 const { Search } = Input;
 
@@ -15,6 +18,9 @@ const AddressManagement = () => {
 		total: 0,
 	});
 
+	const [searchQuery, setSearchQuery] = useState('');
+	const { sort, sortable, handleSorter } = useServerSort();
+
 	// Load addresses with optional search query
 	const loadAddresses = async (params = {}) => {
 		setLoading(true);
@@ -24,8 +30,8 @@ const AddressManagement = () => {
 				...params,
 				page,
 				limit,
-				sortBy: 'createdAt',
-				sortOrder: 'desc',
+				query: searchQuery || undefined,
+				...sort,
 			});
 			setAddresses(data.addresses);
 			setPagination({
@@ -67,10 +73,14 @@ const AddressManagement = () => {
 
 	// Handle search input
 	const handleSearch = (value) => {
-		loadAddresses({ query: value, page: 1 }); // Reset to first page when searching
+		setSearchQuery(value);
 	};
 
-	const handleTableChange = (paginationParams) => {
+	const handleTableChange = (paginationParams, _filters, sorter, extra) => {
+		if (extra?.action === 'sort') {
+			handleSorter(sorter);
+			return;
+		}
 		loadAddresses({
 			page: paginationParams.current,
 			limit: paginationParams.pageSize,
@@ -88,8 +98,8 @@ const AddressManagement = () => {
 	};
 
 	useEffect(() => {
-		loadAddresses();
-	}, []);
+		loadAddresses({ page: 1 });
+	}, [searchQuery, sort]);
 
 	return (
 		<div>
@@ -129,6 +139,7 @@ const AddressManagement = () => {
 					},
 				}}
 				onChange={handleTableChange}
+				showSorterTooltip={false}
 				columns={[
 					{
 						title: 'S.No',
@@ -142,27 +153,28 @@ const AddressManagement = () => {
 						key: '_id',
 						width: 220,
 					},
-					{ title: 'Street', dataIndex: 'street' },
-					{ title: 'House Number', dataIndex: 'houseNumber' },
-					{ title: 'Apartment Number', dataIndex: 'apartmentNumber' },
-					{ title: 'City', dataIndex: 'city' },
-					{ title: 'State', dataIndex: 'state' },
-					{ title: 'Country', dataIndex: 'country' },
+					{ title: 'Street', dataIndex: 'street', ...sortable('street') },
+					{ title: 'House Number', dataIndex: 'houseNumber', ...sortable('houseNumber') },
+					{ title: 'Apartment Number', dataIndex: 'apartmentNumber', ...sortable('apartmentNumber') },
+					{ title: 'City', dataIndex: 'city', ...sortable('city') },
+					{ title: 'State', dataIndex: 'state', ...sortable('state') },
+					{ title: 'Country', dataIndex: 'country', ...sortable('country') },
 					{ title: 'Latitude', dataIndex: ['location', 'lat'] },
 					{ title: 'Longitude', dataIndex: ['location', 'lng'] },
 					{
 						title: 'Actions',
 						key: 'actions',
+						width: 80,
 						render: (_, record) => (
-							<Popconfirm
-								title="Delete Address"
-								description="Are you sure you want to delete this address?"
+							<IconAction
+								icon={<DeleteOutlined />}
+								label="Delete"
+								tone="danger"
+								confirm="Delete this address?"
+								confirmDescription="This can't be undone."
+								okText="Delete"
 								onConfirm={() => handleDelete(record._id)}
-								okText="Yes"
-								cancelText="No"
-							>
-								<Button danger>Delete</Button>
-							</Popconfirm>
+							/>
 						),
 					},
 				]}

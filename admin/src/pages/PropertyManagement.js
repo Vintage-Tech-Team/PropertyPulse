@@ -5,26 +5,36 @@ import {
 	Modal,
 	Form,
 	Input,
+	Select,
 	message,
-	Popconfirm,
-	Tag,
-	Row,
-	Col,
 	DatePicker,
-	Radio,
-	Space,
+	Segmented,
 	Pagination,
+	Typography,
 } from 'antd';
+import {
+	SearchOutlined,
+	PlusOutlined,
+	DeleteOutlined,
+	CheckOutlined,
+	StopOutlined,
+	EnvironmentOutlined,
+} from '@ant-design/icons';
+import IconAction from '../components/IconAction';
+import UserAvatar from '../components/UserAvatar';
+import useServerSort from '../hooks/useServerSort';
 import { useNavigate } from 'react-router-dom';
 import { fetchProperties, addProperty, deleteProperty, updateProperty } from '../services/propertyService';
 import { fetchAddresses } from '../services/addressService';
 import { debounce } from 'lodash';
-import AdComponent from '../components/AdComponent';
 import { useAuth } from '../contexts/AuthContext';
 import dayjs from 'dayjs';
+import './PropertyManagement.css';
 
-const { Option } = Input;
+const { Option } = Select;
 const { RangePicker } = DatePicker;
+const { Text } = Typography;
+
 
 const PropertyManagement = () => {
 	const [properties, setProperties] = useState([]);
@@ -42,12 +52,18 @@ const PropertyManagement = () => {
 	});
 	const navigate = useNavigate();
 	const { userID } = useAuth();
+	const { sort, sortable, handleSorter } = useServerSort();
 
 	// Effect to load properties when filters change
 	useEffect(() => {
 		console.log('Filter changed - Current filter:', verificationFilter);
 		loadProperties();
-	}, [verificationFilter, dateRange, searchQuery, pagination.current, pagination.pageSize]);
+	}, [verificationFilter, dateRange, searchQuery, pagination.current, pagination.pageSize, sort]);
+
+	// Go back to page 1 whenever the sort changes
+	useEffect(() => {
+		setPagination((prev) => (prev.current === 1 ? prev : { ...prev, current: 1 }));
+	}, [sort]);
 
 	const loadProperties = async () => {
 		setLoading(true);
@@ -57,8 +73,7 @@ const PropertyManagement = () => {
 				page: pagination.current,
 				limit: pagination.pageSize,
 				isAdmin: true,
-				sortBy: 'createdAt',
-				sortOrder: 'desc',
+				...sort,
 			};
 
 			// Add verification filter if not 'all'
@@ -156,8 +171,7 @@ const PropertyManagement = () => {
 		}
 	};
 
-	const handleVerificationFilterChange = (e) => {
-		const value = e.target.value;
+	const handleVerificationFilterChange = (value) => {
 		console.log('Setting verification filter to:', value);
 		setVerificationFilter(value);
 		setPagination((prev) => ({ ...prev, current: 1 }));
@@ -189,183 +203,182 @@ const PropertyManagement = () => {
 		loadAddresses();
 	}, []);
 
-	return (
-		<div style={{ height: '100%', position: 'relative', display: 'flex', flexDirection: 'column' }}>
-			{/* Search and Filters */}
-			<div
-				style={{
-					padding: '16px 24px',
-					backgroundColor: '#fff',
-					borderBottom: '1px solid #f0f0f0',
-					flex: '0 0 auto',
-				}}
-			>
-				<Row gutter={[16, 16]} align="middle">
-					<Col flex="auto">
-						<Input.Search
-							placeholder="Search properties..."
-							allowClear
-							onSearch={handleSearch}
-							style={{ width: '100%' }}
+	const debouncedSearch = React.useMemo(() => debounce((value) => handleSearch(value.trim()), 400), []);
+	useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
+
+	const formatAddress = (address) =>
+		[address?.houseNumber, address?.street, address?.block, address?.societyTown].filter(Boolean).join(', ');
+
+	const columns = [
+		{
+			title: '#',
+			key: 'serialNumber',
+			width: 56,
+			render: (_, __, index) => (
+				<span className="pp-muted">{(pagination.current - 1) * pagination.pageSize + index + 1}</span>
+			),
+		},
+		{
+			title: 'Property',
+			dataIndex: 'name',
+			...sortable('name'),
+			render: (name, record) => (
+				<div className="pp-cell-stack">
+					<span className="pp-strong">{name}</span>
+					<Text
+						className="pp-id"
+						copyable={{ text: record._id, tooltips: ['Copy ID', 'Copied'] }}
+						onClick={(e) => e.stopPropagation()}
+					>
+						{record._id.slice(-8)}
+					</Text>
+				</div>
+			),
+		},
+		{
+			title: 'Owner',
+			dataIndex: 'owner',
+			...sortable('owner'),
+			render: (owner, record) => (
+				<div className="pp-owner">
+					<UserAvatar name={owner} />
+					<div className="pp-cell-stack">
+						<span>{owner || '—'}</span>
+						<span className="pp-muted pp-small">{record.consumerId || 'No consumer ID'}</span>
+					</div>
+				</div>
+			),
+		},
+		{
+			title: 'Location',
+			key: 'address',
+			width: 300,
+			render: (_, record) => (
+				<div className="pp-cell-stack">
+					<span className="pp-clamp">{formatAddress(record.address) || '—'}</span>
+					{record.address?.city && (
+						<span className="pp-city">
+							<EnvironmentOutlined /> {record.address.city}
+						</span>
+					)}
+				</div>
+			),
+		},
+		{
+			title: 'Status',
+			dataIndex: 'verified',
+			...sortable('verified'),
+			width: 130,
+			render: (verified) => (
+				<span className={`pp-status ${verified ? 'is-verified' : 'is-pending'}`}>
+					{verified ? 'Verified' : 'Unverified'}
+				</span>
+			),
+		},
+		{
+			title: 'Created',
+			dataIndex: 'createdAt',
+			...sortable('createdAt'),
+			width: 130,
+			render: (date) => <span className="pp-muted">{date ? dayjs(date).format('DD MMM YYYY') : '—'}</span>,
+		},
+		{
+			title: '',
+			key: 'action',
+			width: 100,
+			align: 'right',
+			render: (_, record) => (
+				<div className="pp-actions" onClick={(e) => e.stopPropagation()}>
+					{record.verified ? (
+						<IconAction
+							icon={<StopOutlined />}
+							label="Unapprove"
+							tone="neutral"
+							confirm="Unapprove this property?"
+							onConfirm={() => handleUnapprove(record._id)}
 						/>
-					</Col>
-					<Col>
-						<Space size="large">
-							<Radio.Group
-								value={verificationFilter}
-								onChange={handleVerificationFilterChange}
-								optionType="button"
-								buttonStyle="solid"
-							>
-								<Radio.Button value="all">All Properties</Radio.Button>
-								<Radio.Button value="verified">
-									<Tag color="green">Verified</Tag>
-								</Radio.Button>
-								<Radio.Button value="unverified">
-									<Tag color="red">Unverified</Tag>
-								</Radio.Button>
-							</Radio.Group>
-							<RangePicker onChange={handleDateRangeChange} value={dateRange} />
-							<Button type="primary" onClick={() => setIsModalOpen(true)}>
-								Add Property
-							</Button>
-						</Space>
-					</Col>
-				</Row>
+					) : (
+						<IconAction
+							icon={<CheckOutlined />}
+							label="Approve"
+							tone="approve"
+							confirm="Approve this property?"
+							onConfirm={() => handleApprove(record._id)}
+						/>
+					)}
+					<IconAction
+						icon={<DeleteOutlined />}
+						label="Delete"
+						tone="danger"
+						confirm="Delete this property?"
+						confirmDescription="This can't be undone."
+						okText="Delete"
+						onConfirm={() => handleDelete(record._id)}
+					/>
+				</div>
+			),
+		},
+	];
+
+	return (
+		<div className="pp-page">
+			{/* Toolbar */}
+			<div className="pp-toolbar">
+				<Input
+					className="pp-search"
+					prefix={<SearchOutlined style={{ color: '#9db0b4' }} />}
+					placeholder="Search by name, owner or address"
+					allowClear
+					onChange={(e) => debouncedSearch(e.target.value)}
+				/>
+				<Segmented
+					value={verificationFilter}
+					onChange={handleVerificationFilterChange}
+					options={[
+						{ label: 'All', value: 'all' },
+						{ label: 'Verified', value: 'verified' },
+						{ label: 'Unverified', value: 'unverified' },
+					]}
+				/>
+				<RangePicker onChange={handleDateRangeChange} value={dateRange} format="DD MMM YYYY" />
+				<Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalOpen(true)} className="pp-add">
+					Add property
+				</Button>
 			</div>
 
-			{/* Table Content */}
-			<div
-				style={{
-					flex: '1 1 auto',
-					overflowY: 'auto',
-					padding: '0 24px',
-				}}
-			>
-				{/* Scrollable Table Content */}
+			{/* Table */}
+			<div className="pp-table-wrap">
 				<Table
 					loading={loading}
 					dataSource={properties}
 					rowKey="_id"
 					pagination={false}
+					onChange={(_, __, sorter) => handleSorter(sorter)}
+					showSorterTooltip={false}
+					sticky
+					scroll={{ x: 1000 }}
 					onRow={(record) => ({
 						onClick: () => navigate(`/dashboard/properties/${record._id}`),
 						style: { cursor: 'pointer' },
 					})}
-					columns={[
-						{
-							title: 'S.No',
-							key: 'serialNumber',
-							render: (_, __, index) => (pagination.current - 1) * pagination.pageSize + index + 1,
-							width: 80,
-						},
-						{
-							title: 'ID',
-							dataIndex: '_id',
-							key: '_id',
-							width: 220,
-						},
-						{
-							title: 'Name',
-							dataIndex: 'name',
-							key: 'name',
-						},
-						{
-							title: 'Owner',
-							dataIndex: 'owner',
-							key: 'owner',
-						},
-						{
-							title: 'Consumer ID',
-							dataIndex: 'consumerId',
-							key: 'consumerId',
-							render: (consumerId) => consumerId || 'N/A',
-						},
-						{
-							title: 'Address',
-							key: 'address',
-							width: 300,
-							render: (_, record) => (
-								<span>
-									{[
-										record.address?.houseNumber,
-										record.address?.street,
-										record.address?.block,
-										record.address?.societyTown,
-										record.address?.city,
-									]
-										.filter(Boolean)
-										.join(', ')}
-								</span>
-							),
-						},
-						{
-							title: 'Status',
-							dataIndex: 'verified',
-							key: 'verified',
-							render: (verified) => (
-								<Tag color={verified ? 'green' : 'red'}>{verified ? 'Verified' : 'Unverified'}</Tag>
-							),
-						},
-						{
-							title: 'Created At',
-							dataIndex: 'createdAt',
-							key: 'createdAt',
-							render: (date) => new Date(date).toLocaleDateString(),
-						},
-						{
-							title: 'Action',
-							key: 'action',
-							render: (_, record) => (
-								<div onClick={(e) => e.stopPropagation()}>
-									<Popconfirm
-										title="Are you sure you want to delete this property?"
-										onConfirm={() => handleDelete(record._id)}
-										okText="Yes"
-										cancelText="No"
-									>
-										<Button danger style={{ marginRight: '8px' }}>
-											Delete
-										</Button>
-									</Popconfirm>
-									<Popconfirm
-										title={
-											record.verified
-												? 'Are you sure you want to unapprove this property?'
-												: 'Are you sure you want to approve this property?'
-										}
-										onConfirm={() => {
-											record.verified ? handleUnapprove(record._id) : handleApprove(record._id);
-										}}
-										okText="Yes"
-										cancelText="No"
-									>
-										<Button type="primary">{record.verified ? 'Unapprove' : 'Approve'}</Button>
-									</Popconfirm>
-								</div>
-							),
-						},
-					]}
+					columns={columns}
 				/>
 			</div>
 
 			{/* Pagination */}
-			<div
-				style={{
-					padding: '16px 24px',
-					backgroundColor: '#fff',
-					borderTop: '1px solid #f0f0f0',
-					display: 'flex',
-					justifyContent: 'center',
-					alignItems: 'center',
-					flex: '0 0 auto',
-				}}
-			>
+			<div className="pp-footer">
+				<span className="pp-muted">
+					{pagination.total
+						? `Showing ${(pagination.current - 1) * pagination.pageSize + 1}–${Math.min(
+								pagination.current * pagination.pageSize,
+								pagination.total,
+						  )} of ${pagination.total} properties`
+						: 'No properties'}
+				</span>
 				<Pagination
 					{...pagination}
 					showSizeChanger
 					pageSizeOptions={['20', '30', '50']}
-					showTotal={(total) => `Total ${total} properties`}
 					onChange={(page, pageSize) => {
 						console.log('Pagination changed:', { page, pageSize });
 						handleTableChange({ current: page, pageSize });
@@ -374,24 +387,28 @@ const PropertyManagement = () => {
 			</div>
 
 			{/* Modal */}
-			<Modal title="Add Property" open={isModalOpen} onCancel={() => setIsModalOpen(false)} onOk={() => form.submit()}>
-				<Form form={form} onFinish={onSubmit}>
-					<Form.Item name="name" rules={[{ required: true, message: 'Name is required' }]}>
-						<Input placeholder="Property Name" />
+			<Modal
+				title="Add property"
+				open={isModalOpen}
+				onCancel={() => setIsModalOpen(false)}
+				onOk={() => form.submit()}
+				okText="Add property"
+			>
+				<Form form={form} onFinish={onSubmit} layout="vertical" requiredMark={false} style={{ marginTop: 16 }}>
+					<Form.Item label="Property name" name="name" rules={[{ required: true, message: 'Name is required' }]}>
+						<Input placeholder="e.g. DHA Phase 6 Modern House" />
 					</Form.Item>
-					<Form.Item name="owner" rules={[{ required: true, message: 'Owner is required' }]}>
-						<Input placeholder="Owner Name" />
+					<Form.Item label="Owner" name="owner" rules={[{ required: true, message: 'Owner is required' }]}>
+						<Input placeholder="Owner name" />
 					</Form.Item>
-					<Form.Item name="address" rules={[{ required: true, message: 'Address is required' }]}>
-						<Input.Select placeholder="Select Address">
-							{addresses &&
-								addresses?.length &&
-								addresses?.map((addr) => (
-									<Option key={addr._id} value={addr._id}>
-										{addr.street}, {addr.houseNumber}, {addr.block}, {addr.societyTown} {addr.city}, {addr.state}
-									</Option>
-								))}
-						</Input.Select>
+					<Form.Item label="Address" name="address" rules={[{ required: true, message: 'Address is required' }]}>
+						<Select placeholder="Select an address" showSearch optionFilterProp="children">
+							{addresses?.map((addr) => (
+								<Option key={addr._id} value={addr._id}>
+									{addr.street}, {addr.houseNumber}, {addr.block}, {addr.societyTown} {addr.city}, {addr.state}
+								</Option>
+							))}
+						</Select>
 					</Form.Item>
 				</Form>
 			</Modal>

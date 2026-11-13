@@ -3,28 +3,11 @@ import { Form, Input, Button, Alert, ConfigProvider, message } from 'antd';
 import { MailOutlined, LockOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import './Login.css';
+import LogoMark from '../components/LogoMark';
 
-const LogoMark = ({ house = '#ffffff', pulse = '#5cc29a' }) => (
-	<svg viewBox="20 60 160 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-		<g fill="none" strokeWidth="5" strokeLinejoin="round" strokeLinecap="round">
-			<polygon stroke={house} points="50,100 70,80 90,100 90,140 50,140" />
-			<polygon stroke={house} points="80,90 100,70 120,90 120,140 80,140" />
-			<polygon stroke={house} points="110,100 130,80 150,100 150,140 110,140" />
-			<polyline stroke={pulse} points="30,120 60,120 70,100 85,140 100,80 115,120 170,120" />
-		</g>
-	</svg>
-);
-
-const theme = {
-	token: {
-		colorPrimary: '#2e8b6a',
-		colorText: '#10262b',
-		colorTextPlaceholder: '#9db0b4',
-		colorBorder: '#e2e8ea',
-		borderRadius: 10,
-		controlHeightLG: 46,
-		fontSize: 14,
-	},
+// Login-only tweaks on top of the app-wide theme in App.js.
+const loginTheme = {
+	token: { controlHeightLG: 46 },
 	components: {
 		Button: { primaryShadow: '0 6px 16px rgba(46, 139, 106, 0.25)', fontWeight: 600 },
 	},
@@ -49,7 +32,7 @@ const Login = () => {
 	};
 
 	return (
-		<ConfigProvider theme={theme}>
+		<ConfigProvider theme={loginTheme}>
 			<div className="pp-login">
 				<aside className="pp-login__brand">
 					<div className="pp-login__logo">

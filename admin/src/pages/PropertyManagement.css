@@ -1,0 +1,147 @@
+.pp-page {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+}
+
+/* Toolbar */
+.pp-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+	padding: 16px 20px;
+	border-bottom: 1px solid #edf2f3;
+}
+
+.pp-search {
+	flex: 1 1 260px;
+	max-width: 420px;
+}
+
+.pp-add {
+	margin-left: auto;
+}
+
+/* Table */
+.pp-table-wrap {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow: auto;
+}
+
+.pp-table-wrap .ant-table-thead > tr > th {
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.pp-table-wrap .ant-table-thead > tr > th:first-child,
+.pp-table-wrap .ant-table-tbody > tr > td:first-child {
+	padding-left: 20px;
+}
+
+.pp-table-wrap .ant-table-thead > tr > th:last-child,
+.pp-table-wrap .ant-table-tbody > tr > td:last-child {
+	padding-right: 20px;
+}
+
+.pp-muted {
+	color: #5b6b70;
+}
+
+.pp-small {
+	font-size: 12px;
+}
+
+.pp-strong {
+	font-weight: 600;
+	color: #10262b;
+}
+
+.pp-cell-stack {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.pp-id.ant-typography {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 12px;
+	color: #9db0b4;
+}
+
+.pp-owner {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.pp-clamp {
+	display: -webkit-box;
+	-webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.pp-city {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 12px;
+	color: #2e8b6a;
+}
+
+.pp-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 3px 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.pp-status::before {
+	content: '';
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: currentColor;
+}
+
+.pp-status.is-verified {
+	color: #237a5b;
+	background: #e6f5ee;
+}
+
+.pp-status.is-pending {
+	color: #b45309;
+	background: #fdf3e2;
+}
+
+
+/* Footer */
+.pp-footer {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 12px 20px;
+	border-top: 1px solid #edf2f3;
+	font-size: 13px;
+}
+
+@media (max-width: 768px) {
+	.pp-search {
+		max-width: none;
+	}
+
+	.pp-add {
+		margin-left: 0;
+	}
+}

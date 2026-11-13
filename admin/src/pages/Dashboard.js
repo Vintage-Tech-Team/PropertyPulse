@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
-import { Button, Layout, Menu } from 'antd';
-import { UserOutlined, HomeOutlined, SettingOutlined, FileTextOutlined } from '@ant-design/icons';
+import { Avatar, Dropdown, Layout, Menu, Tooltip } from 'antd';
+import {
+	HomeOutlined,
+	TeamOutlined,
+	EnvironmentOutlined,
+	StarOutlined,
+	MessageOutlined,
+	LogoutOutlined,
+	LeftOutlined,
+	RightOutlined,
+	DownOutlined,
+} from '@ant-design/icons';
 import { Link, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import UserManagement from './UserManagement';
 import PropertyManagement from './PropertyManagement';
@@ -9,98 +19,158 @@ import AddressManagement from './AddressManagement';
 import { useAuth } from '../contexts/AuthContext';
 import PropertyDetails from './PropertyDetails';
 import QueryManagement from './QueryManagement';
+import LogoMark from '../components/LogoMark';
+import './Dashboard.css';
 
 const { Header, Content, Sider } = Layout;
+
+const SIDER_WIDTH = 240;
+const SIDER_COLLAPSED = 80;
+
+const menuItems = [
+	{
+		key: 'properties',
+		label: 'Properties',
+		icon: <HomeOutlined />,
+		link: '/dashboard/properties',
+		subtitle: 'Review, verify and manage every listing',
+	},
+	{ key: 'users', label: 'Users', icon: <TeamOutlined />, link: '/dashboard/users', subtitle: 'Tenants and admin accounts' },
+	{
+		key: 'addresses',
+		label: 'Addresses',
+		icon: <EnvironmentOutlined />,
+		link: '/dashboard/addresses',
+		subtitle: 'Locations properties can be listed under',
+	},
+	{ key: 'reviews', label: 'Reviews', icon: <StarOutlined />, link: '/dashboard/reviews', subtitle: 'Moderate tenant reviews' },
+	{
+		key: 'queries',
+		label: 'Queries',
+		icon: <MessageOutlined />,
+		link: '/dashboard/queries',
+		subtitle: 'Messages sent through the contact form',
+	},
+];
+
+// Wraps pages that don't handle their own padding and scrolling.
+const Scroll = ({ children }) => <div className="pp-scroll">{children}</div>;
 
 const Dashboard = () => {
 	const [collapsed, setCollapsed] = useState(false);
 	const { logout } = useAuth();
-
 	const location = useLocation();
 
-	// Menu Items
-	const menuItems = [
-		{ key: 'properties', label: 'Properties', icon: <HomeOutlined />, link: '/dashboard/properties' },
-		{ key: 'users', label: 'Users', icon: <UserOutlined />, link: '/dashboard/users' },
-		{ key: 'addresses', label: 'Addresses', icon: <SettingOutlined />, link: '/dashboard/addresses' },
-		{ key: 'reviews', label: 'Reviews', icon: <FileTextOutlined />, link: '/dashboard/reviews' },
-		{ key: 'queries', label: 'Queries', icon: <FileTextOutlined />, link: '/dashboard/queries' },
-	];
-
-	// Determine Selected Menu Key
-	const selectedKey = menuItems.find((item) => location.pathname.startsWith(item.link))?.key || 'properties';
+	const current = menuItems.find((item) => location.pathname.startsWith(item.link)) || menuItems[0];
+	const isDetail = /^\/dashboard\/properties\/[^/]+/.test(location.pathname);
 
 	return (
-		<Layout style={{ height: '100vh' }}>
-			{/* Header */}
-			<Header
-				style={{
-					display: 'flex',
-					justifyContent: 'space-between',
-					alignItems: 'center',
-					color: '#fff',
-					position: 'fixed',
-					width: '100%',
-					top: 0,
-					zIndex: 1,
-					padding: '0 24px',
-				}}
+		<Layout className="pp-shell">
+			<Sider
+				className="pp-sider"
+				width={SIDER_WIDTH}
+				collapsedWidth={SIDER_COLLAPSED}
+				collapsed={collapsed}
+				trigger={null}
+				collapsible
 			>
-				<div style={{ fontSize: '20px', fontWeight: 'bold' }}>Property Pulse Admin</div>
-				<Button type="primary" onClick={logout}>
-					Logout
-				</Button>
-			</Header>
+				<div className="pp-sider__brand">
+					<LogoMark />
+					{!collapsed && (
+						<div>
+							PropertyPulse
+							<small>Admin</small>
+						</div>
+					)}
+				</div>
 
-			{/* Body Layout */}
-			<Layout style={{ marginTop: 64 }}>
-				{/* Sidebar */}
-				<Sider
-					collapsible
-					collapsed={collapsed}
-					onCollapse={(value) => setCollapsed(value)}
-					style={{
-						backgroundColor: '#001529',
-						position: 'fixed',
-						left: 0,
-						height: 'calc(100vh - 64px)',
-						zIndex: 1,
-					}}
-				>
-					<Menu theme="dark" mode="inline" selectedKeys={[selectedKey]}>
-						{menuItems.map((item) => (
-							<Menu.Item key={item.key} icon={item.icon}>
-								<Link to={item.link}>{item.label}</Link>
-							</Menu.Item>
-						))}
-					</Menu>
-				</Sider>
+				{!collapsed && <div className="pp-sider__section">Manage</div>}
 
-				{/* Main Content */}
-				<Layout style={{ marginLeft: collapsed ? 80 : 200, transition: 'margin-left 0.2s' }}>
-					<Content
-						style={{
-							margin: '24px',
-							background: '#fff',
-							minHeight: 'calc(100vh - 112px)',
-							position: 'relative',
-							padding: 0, // Remove padding to allow children to handle their own padding
-							overflow: 'hidden', // Change from 'auto' to 'hidden'
+				<Menu
+					theme="dark"
+					mode="inline"
+					selectedKeys={[current.key]}
+					items={menuItems.map((item) => ({
+						key: item.key,
+						icon: item.icon,
+						label: <Link to={item.link}>{item.label}</Link>,
+					}))}
+				/>
+
+				<Tooltip title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} placement="right">
+					<button
+						type="button"
+						className="pp-sider__toggle"
+						onClick={() => setCollapsed((c) => !c)}
+						aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+					>
+						{collapsed ? <RightOutlined /> : <LeftOutlined />}
+					</button>
+				</Tooltip>
+			</Sider>
+
+			<Layout className="pp-main" style={{ marginLeft: collapsed ? SIDER_COLLAPSED : SIDER_WIDTH }}>
+				<Header className="pp-topbar">
+					<div>
+						<h1>{isDetail ? 'Property details' : current.label}</h1>
+						<p>{isDetail ? 'Full record for this listing' : current.subtitle}</p>
+					</div>
+
+					<Dropdown
+						trigger={['click']}
+						placement="bottomRight"
+						menu={{
+							items: [{ key: 'logout', icon: <LogoutOutlined />, label: 'Log out', danger: true }],
+							onClick: ({ key }) => key === 'logout' && logout(),
 						}}
 					>
+						<div className="pp-user">
+							<Avatar style={{ background: '#2e8b6a', fontWeight: 600 }}>A</Avatar>
+							<div className="pp-user__meta">
+								<div className="pp-user__name">Admin</div>
+								<div className="pp-user__role">Administrator</div>
+							</div>
+							<DownOutlined style={{ fontSize: 10, color: '#9db0b4' }} />
+						</div>
+					</Dropdown>
+				</Header>
+
+				<Content className="pp-content">
+					<div className="pp-card">
 						<Routes>
 							<Route path="users" element={<UserManagement />} />
 							<Route path="properties" element={<PropertyManagement />} />
-							<Route path="properties/:id" element={<PropertyDetails />} />
-							<Route path="addresses" element={<AddressManagement />} />
+							<Route
+								path="properties/:id"
+								element={
+									<Scroll>
+										<PropertyDetails />
+									</Scroll>
+								}
+							/>
+							<Route
+								path="addresses"
+								element={
+									<Scroll>
+										<AddressManagement />
+									</Scroll>
+								}
+							/>
 							<Route path="reviews" element={<ReviewManagement />} />
-							<Route path="queries" element={<QueryManagement />} />
+							<Route
+								path="queries"
+								element={
+									<Scroll>
+										<QueryManagement />
+									</Scroll>
+								}
+							/>
 
 							{/* Redirect from /dashboard to /dashboard/properties */}
 							<Route path="/" element={<Navigate to="/dashboard/properties" />} />
 						</Routes>
-					</Content>
-				</Layout>
+					</div>
+				</Content>
 			</Layout>
 		</Layout>
 	);

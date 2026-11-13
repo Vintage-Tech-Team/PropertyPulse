@@ -11,6 +11,7 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const propertyRoutes = require('./routes/propertyRoutes');
 const userRoutes = require('./routes/userRoutes');
 const contactRoutes = require('./routes/contactRoutes');
+const { LOCAL_UPLOAD_DIR, LOCAL_UPLOAD_ROUTE } = require('./utils/s3');
 
 // Initialize App
 const app = express();
@@ -33,6 +34,9 @@ app.use(
 		credentials: true,
 	}),
 );
+
+// Files saved locally when S3 isn't configured (development only)
+app.use(LOCAL_UPLOAD_ROUTE, express.static(LOCAL_UPLOAD_DIR));
 
 // Database connection with connection pooling
 let cachedDb = null;

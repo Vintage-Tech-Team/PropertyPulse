@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Input, message, Row, Col, Tag, Popconfirm, Radio, Space, Pagination } from 'antd';
+import { Table, Button, Modal, Form, Input, message, Row, Col, Tag, Radio, Space, Pagination } from 'antd';
 import { fetchUsers, addUser, deleteUser, updateUser } from '../services/userService';
+import { CheckOutlined, StopOutlined, DeleteOutlined } from '@ant-design/icons';
+import UserAvatar from '../components/UserAvatar';
+import IconAction from '../components/IconAction';
+import useServerSort from '../hooks/useServerSort';
 
 const { Search } = Input;
 
@@ -10,6 +14,8 @@ const UserManagement = () => {
 	const [form] = Form.useForm();
 	const [loading, setLoading] = useState(false);
 	const [verificationFilter, setVerificationFilter] = useState('all');
+	const [searchQuery, setSearchQuery] = useState('');
+	const { sort, sortable, handleSorter } = useServerSort();
 	const [pagination, setPagination] = useState({
 		current: 1,
 		pageSize: 20,
@@ -26,9 +32,10 @@ const UserManagement = () => {
 				...params,
 				page,
 				limit,
-				sortBy: 'createdAt',
-				sortOrder: 'desc',
+				...sort,
 			};
+
+			if (searchQuery) filterParams.query = searchQuery;
 
 			// Add verification filter if not 'all'
 			if (verificationFilter !== 'all') {
@@ -75,10 +82,7 @@ const UserManagement = () => {
 	};
 
 	const handleSearch = (value) => {
-		loadUsers({
-			query: value,
-			page: 1,
-		}); // Remove filter here as it's handled in loadUsers
+		setSearchQuery(value);
 	};
 
 	const handleTableChange = (paginationParams) => {
@@ -89,8 +93,8 @@ const UserManagement = () => {
 	};
 
 	useEffect(() => {
-		loadUsers();
-	}, [verificationFilter]);
+		loadUsers({ page: 1 });
+	}, [verificationFilter, searchQuery, sort]);
 
 	const handleApprove = async (userId) => {
 		try {
@@ -175,6 +179,8 @@ const UserManagement = () => {
 					dataSource={users}
 					rowKey="_id"
 					pagination={false}
+					onChange={(_, __, sorter) => handleSorter(sorter)}
+					showSorterTooltip={false}
 					columns={[
 						{
 							title: 'S.No',
@@ -188,11 +194,23 @@ const UserManagement = () => {
 							key: '_id',
 							width: 220,
 						},
-						{ title: 'Name', dataIndex: 'name' },
-						{ title: 'Email', dataIndex: 'email' },
-						{ title: 'Role', dataIndex: 'role' },
+						{
+							title: 'Name',
+							dataIndex: 'name',
+							...sortable('name'),
+							render: (name, record) => (
+								<div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+									<UserAvatar name={name} src={record.profileImage} />
+									<span>{name || '—'}</span>
+								</div>
+							),
+						},
+						{ title: 'Email', dataIndex: 'email', ...sortable('email') },
+						{ title: 'Role', dataIndex: 'role', ...sortable('role') },
 						{
 							title: 'Verified',
+							dataIndex: 'verified',
+							...sortable('verified'),
 							render: (_, record) => {
 								return record.verified === true ? (
 									<Tag color="green">Verified</Tag>
@@ -203,33 +221,36 @@ const UserManagement = () => {
 						},
 						{
 							title: 'Action',
+							width: 110,
 							render: (_, record) => (
-								<>
-									<Popconfirm
-										title={
-											record.verified
-												? 'Are you sure you want to block this user?'
-												: 'Are you sure you want to verify this user?'
-										}
-										onConfirm={() =>
-											record.verified ? handleBlock(record._id) : handleApprove(record._id)
-										}
-										okText="Yes"
-										cancelText="No"
-									>
-										<Button type="primary" style={{ marginRight: '8px' }}>
-											{record.verified ? 'Block' : 'Verify'}
-										</Button>
-									</Popconfirm>
-									<Popconfirm
-										title="Are you sure you want to delete this user?"
+								<div className="pp-actions">
+									{record.verified ? (
+										<IconAction
+											icon={<StopOutlined />}
+											label="Block"
+											tone="warn"
+											confirm="Block this user?"
+											onConfirm={() => handleBlock(record._id)}
+										/>
+									) : (
+										<IconAction
+											icon={<CheckOutlined />}
+											label="Verify"
+											tone="approve"
+											confirm="Verify this user?"
+											onConfirm={() => handleApprove(record._id)}
+										/>
+									)}
+									<IconAction
+										icon={<DeleteOutlined />}
+										label="Delete"
+										tone="danger"
+										confirm="Delete this user?"
+										confirmDescription="This can't be undone."
+										okText="Delete"
 										onConfirm={() => handleDelete(record._id)}
-										okText="Yes"
-										cancelText="No"
-									>
-										<Button danger>Delete</Button>
-									</Popconfirm>
-								</>
+									/>
+								</div>
 							),
 						},
 					]}

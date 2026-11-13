@@ -8,7 +8,6 @@ import {
 	Select,
 	message,
 	DatePicker,
-	Popconfirm,
 	Tag,
 	Image,
 	Rate,
@@ -26,6 +25,10 @@ import { fetchReviews, addReview, deleteReview, approveReview, flagReview } from
 import { fetchProperties } from '../services/propertyService';
 import { fetchUsers } from '../services/userService';
 import { useAuth } from '../contexts/AuthContext';
+import { CheckOutlined, FlagOutlined, DeleteOutlined } from '@ant-design/icons';
+import IconAction from '../components/IconAction';
+import UserAvatar from '../components/UserAvatar';
+import useServerSort from '../hooks/useServerSort';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -45,6 +48,7 @@ const ReviewManagement = () => {
 		total: 0,
 	});
 	const { userID } = useAuth();
+	const { sort, sortable, handleSorter } = useServerSort();
 
 	const loadReviews = async (params = {}) => {
 		setLoading(true);
@@ -56,8 +60,7 @@ const ReviewManagement = () => {
 				...params,
 				page,
 				limit,
-				sortBy: 'createdAt',
-				sortOrder: 'desc',
+				...sort,
 			};
 
 			// Add status filter if not 'all'
@@ -147,8 +150,8 @@ const ReviewManagement = () => {
 	}, []);
 
 	useEffect(() => {
-		loadReviews();
-	}, [statusFilter, searchQuery]);
+		loadReviews({ page: 1 });
+	}, [statusFilter, searchQuery, sort]);
 
 	const handleApprove = async (reviewId) => {
 		try {
@@ -202,11 +205,17 @@ const ReviewManagement = () => {
 		{
 			title: 'Reviewer',
 			dataIndex: ['reviewer', 'name'],
-			render: (text) => text || 'Anonymous',
+			render: (text, record) => (
+				<div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+					<UserAvatar name={text || 'Anonymous'} src={record.reviewer?.profileImage} />
+					<span>{text || 'Anonymous'}</span>
+				</div>
+			),
 		},
 		{
 			title: 'Rating',
 			dataIndex: 'overallRating',
+			...sortable('overallRating'),
 			render: (rating) => (
 				<span>
 					<Rate disabled defaultValue={rating} style={{ fontSize: '14px' }} />
@@ -217,10 +226,12 @@ const ReviewManagement = () => {
 		{
 			title: 'Stay Duration',
 			dataIndex: 'stayDuration',
+			...sortable('stayDuration'),
 		},
 		{
 			title: 'Status',
 			dataIndex: 'status',
+			...sortable('status'),
 			render: (status) => {
 				const colors = { approved: 'green', flagged: 'orange', pending: 'red' };
 				return <Tag color={colors[status]}>{status?.charAt(0).toUpperCase() + status?.slice(1)}</Tag>;
@@ -228,35 +239,37 @@ const ReviewManagement = () => {
 		},
 		{
 			title: 'Action',
+			width: 110,
 			render: (_, record) => (
-				<>
+				<div className="pp-actions" onClick={(e) => e.stopPropagation()}>
 					{record.status !== 'approved' ? (
-						<Popconfirm
-							title="Are you sure you want to approve this review?"
+						<IconAction
+							icon={<CheckOutlined />}
+							label="Approve"
+							tone="approve"
+							confirm="Approve this review?"
 							onConfirm={() => handleApprove(record._id)}
-							okText="Yes"
-							cancelText="No"
-						>
-							<Button type="primary" style={{ width: '80px' }}>
-								Approve
-							</Button>
-						</Popconfirm>
+						/>
 					) : (
-						<Popconfirm
-							title="Are you sure you want to flag this review?"
+						<IconAction
+							icon={<FlagOutlined />}
+							label={record.status === 'flagged' ? 'Already flagged' : 'Flag'}
+							tone="warn"
+							confirm="Flag this review?"
+							disabled={record.status === 'flagged'}
 							onConfirm={() => handleFlag(record._id)}
-							okText="Yes"
-							cancelText="No"
-						>
-							<Button type="default" danger disabled={record.status === 'flagged'} style={{ width: '80px' }}>
-								Flag
-							</Button>
-						</Popconfirm>
+						/>
 					)}
-					<Button danger style={{ marginLeft: '10px', width: '80px' }} onClick={() => handleDelete(record._id)}>
-						Delete
-					</Button>
-				</>
+					<IconAction
+						icon={<DeleteOutlined />}
+						label="Delete"
+						tone="danger"
+						confirm="Delete this review?"
+						confirmDescription="This can't be undone."
+						okText="Delete"
+						onConfirm={() => handleDelete(record._id)}
+					/>
+				</div>
 			),
 		},
 	];
@@ -321,6 +334,8 @@ const ReviewManagement = () => {
 					loading={loading}
 					rowKey="_id"
 					pagination={false}
+					onChange={(_, __, sorter) => handleSorter(sorter)}
+					showSorterTooltip={false}
 					columns={columns}
 					expandable={{
 						expandedRowRender: (record) => (

@@ -57,6 +57,9 @@ exports.addProperty = async (req, res) => {
 		res.status(201).json({ message: 'Property created successfully', property });
 	} catch (error) {
 		console.error('Error creating property:', error);
+		if (error.code === 'S3_NOT_CONFIGURED') {
+			return res.status(503).json({ error: error.message });
+		}
 		res.status(500).json({ error: 'Failed to create property' });
 	}
 };

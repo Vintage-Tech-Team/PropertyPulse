@@ -1,0 +1,64 @@
+.pp-actions {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.ant-btn.pp-icon-action {
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	border-radius: 8px;
+	border-color: transparent;
+	box-shadow: none;
+	font-size: 15px;
+}
+
+.ant-btn.pp-icon-action.is-approve {
+	color: #237a5b;
+	background: #e6f5ee;
+}
+
+.ant-btn.pp-icon-action.is-approve:not(:disabled):hover {
+	color: #fff !important;
+	background: #2e8b6a !important;
+	border-color: #2e8b6a !important;
+}
+
+.ant-btn.pp-icon-action.is-warn {
+	color: #b45309;
+	background: #fdf3e2;
+}
+
+.ant-btn.pp-icon-action.is-warn:not(:disabled):hover {
+	color: #fff !important;
+	background: #d97706 !important;
+	border-color: #d97706 !important;
+}
+
+.ant-btn.pp-icon-action.is-danger {
+	color: #d14343;
+	background: #fdecec;
+}
+
+.ant-btn.pp-icon-action.is-danger:not(:disabled):hover {
+	color: #fff !important;
+	background: #d14343 !important;
+	border-color: #d14343 !important;
+}
+
+.ant-btn.pp-icon-action.is-neutral {
+	color: #5b6b70;
+	background: #eef3f4;
+}
+
+.ant-btn.pp-icon-action.is-neutral:not(:disabled):hover {
+	color: #fff !important;
+	background: #5b6b70 !important;
+	border-color: #5b6b70 !important;
+}
+
+.ant-btn.pp-icon-action:disabled {
+	color: #b8c6c9;
+	background: #f3f6f7;
+}

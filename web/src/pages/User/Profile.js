@@ -41,11 +41,6 @@ const Profile = () => {
 	const [imageUrl, setImageUrl] = useState(null);
 	const screens = useBreakpoint();
 
-	const cardStyle = {
-		backgroundColor: isDarkMode ? '#1f1f1f' : '#ffffff',
-		color: isDarkMode ? '#ffffff' : '#000000',
-	};
-
 	// Load user data only once when component mounts
 	useEffect(() => {
 		loadUserProfile();
@@ -166,7 +161,7 @@ const Profile = () => {
 						</Button>
 					</Col>
 					<Col xs={24} sm={16}>
-						<Card style={cardStyle} bordered={false}>
+						<Card bordered={false}>
 							<h2>{user?.user?.name}</h2>
 							<p>
 								<strong>Email:</strong> {user?.user?.email}
@@ -217,7 +212,7 @@ const Profile = () => {
 							</Upload>
 						</Col>
 						<Col xs={24} sm={16}>
-							<Card style={cardStyle} bordered={false}>
+							<Card bordered={false}>
 								<Form.Item name="name" label="Name" rules={[{ required: true, message: 'Name is required' }]}>
 									<Input />
 								</Form.Item>
@@ -337,7 +332,7 @@ const Profile = () => {
 							<List.Item>
 								<Card
 									hoverable
-									style={{ ...cardStyle, height: '100%' }}
+									style={{ height: '100%' }}
 									cover={
 										<div style={{ position: 'relative' }}>
 											<img
@@ -405,7 +400,7 @@ const Profile = () => {
 					/>
 				</div>
 			) : (
-				<Card style={cardStyle}>
+				<Card>
 					<Empty description="No properties found" image={Empty.PRESENTED_IMAGE_SIMPLE}>
 						<Button type="primary" onClick={() => navigate('/add-property')}>
 							Add Property
@@ -611,12 +606,11 @@ const Profile = () => {
 				margin: '0 auto',
 				padding: screens.xs ? '8px' : '20px',
 				minHeight: '100vh',
-				background: isDarkMode ? '#141414' : '#f0f2f5',
+				background: isDarkMode ? '#0d1416' : '#f1f6f7',
 			}}
 		>
 			<Card
 				style={{
-					...cardStyle,
 					margin: '0 auto',
 					borderRadius: '8px',
 					boxShadow: '0 1px 2px rgba(0,0,0,0.1)',

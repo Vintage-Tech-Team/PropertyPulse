@@ -1,6 +1,7 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  background-color: #f1f6f7;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -12,59 +13,8 @@ code {
     monospace;
 }
 
-/* Theme Styles */
-.dark-theme {
-    background-color: #141414;
-    color: #ffffff;
+/* Ant Design components are themed in src/theme/antdTheme.js (light and dark) */
+body.dark-theme {
+  background-color: #0d1416;
+  color: #e8f0f1;
 }
-
-.dark-theme .ant-card {
-    background-color: #1f1f1f;
-    border-color: #303030;
-}
-
-.dark-theme .ant-pagination-item {
-    background-color: #1f1f1f;
-    border-color: #303030;
-}
-
-.dark-theme .ant-select-selector {
-    background-color: #1f1f1f !important;
-    border-color: #303030 !important;
-}
-
-.dark-theme .ant-input {
-    background-color: #1f1f1f;
-    border-color: #303030;
-    color: #ffffff;
-}
-.ant-btn-primary {
-  background: #001529 !important;
-  border-color: #001529 !important;
-}
-
-.ant-btn-primary:hover {
-  background: rgba(0, 0, 0, 0.70) !important;
-  border-color: rgba(0, 0, 0, 0.70) !important;
-}
-
-/* Unselected radio button */
-.ant-radio-button-wrapper {
-  background-color: #001529 !important;
-  color: #fff !important;
-  border-color: #001529 !important;
-}
-
-/* Selected */
-.ant-radio-button-wrapper-checked {
-  background-color: rgba(0, 0, 0, 0.78) !important;
-  border-color: rgba(0, 0, 0, 0.78) !important;
-  color: #fff !important;
-}
-
-/* Hover */
-.ant-radio-button-wrapper:hover {
-  background-color: #001529CC !important;
-  color: #fff !important;
-}
-

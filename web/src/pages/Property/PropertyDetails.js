@@ -426,6 +426,7 @@ const PropertyDetails = () => {
 				footer={null}
 				maskClosable={!isSubmitting}
 				closable={!isSubmitting}
+				width={640}
 				style={{ top: 20 }}
 				styles={{
 					body: {
@@ -433,21 +434,20 @@ const PropertyDetails = () => {
 						overflow: 'auto',
 						padding: '24px 24px 0',
 					},
+					// Background colors come from the app's Ant Design theme (light/dark)
 					header: {
 						position: 'sticky',
 						top: 0,
 						zIndex: 1,
-						backgroundColor: '#fff',
 						padding: '16px 24px',
-						borderBottom: '1px solid #f0f0f0',
+						borderBottom: '1px solid rgba(127, 140, 145, 0.2)',
 					},
 					footer: {
 						position: 'sticky',
 						bottom: 0,
 						zIndex: 1,
-						backgroundColor: '#fff',
 						padding: '16px 24px',
-						borderTop: '1px solid #f0f0f0',
+						borderTop: '1px solid rgba(127, 140, 145, 0.2)',
 					},
 					content: {
 						padding: 0,

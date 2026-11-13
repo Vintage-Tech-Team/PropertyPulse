@@ -4,7 +4,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { UploadOutlined, InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { fetchPropertyById, updateProperty } from '../../services/propertyService';
 import { updateAddress } from '../../services/addressService';
-import { useTheme } from '../../contexts/ThemeContext';
 import PropertyMap from '../../components/Map/PropertyMap';
 
 const { TextArea } = Input;
@@ -19,16 +18,10 @@ const EditProperty = () => {
 	const [fileList, setFileList] = useState([]);
 	const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
 	const [addressForm] = Form.useForm();
-	const { isDarkMode } = useTheme();
 	const navigate = useNavigate();
 	const [selectedLocation, setSelectedLocation] = useState(null);
 	const [defaultCenter, setDefaultCenter] = useState(null);
 	const [addressId, setAddressId] = useState(null); // Add state for addressId
-
-	const cardStyle = {
-		backgroundColor: isDarkMode ? '#1f1f1f' : '#ffffff',
-		color: isDarkMode ? '#ffffff' : '#000000',
-	};
 
 	useEffect(() => {
 		loadProperty();
@@ -182,7 +175,7 @@ const EditProperty = () => {
 
 	return (
 		<div style={{ maxWidth: 1200, margin: '20px auto', padding: '0 20px' }}>
-			<Card title="Edit Property" style={cardStyle}>
+			<Card title="Edit Property">
 				<Form
 					form={form}
 					layout="vertical"

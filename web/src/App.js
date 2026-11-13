@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ConfigProvider } from 'antd';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { ThemeProvider } from './contexts/ThemeContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { getAntdTheme } from './theme/antdTheme';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import ForgotPassword from './pages/Auth/ForgotPassword';
@@ -18,50 +20,67 @@ import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsConditions/TermsConditions';
 import ContactUs from './pages/ContactUs/ContactUs';
 
+// Applies the app's Ant Design theme (light/dark) to every component, including dialogs
+// opened with static calls like Modal.confirm() and message.success()
+const AntdThemeProvider = ({ children }) => {
+	const { isDarkMode } = useTheme();
+	const antdTheme = useMemo(() => getAntdTheme(isDarkMode), [isDarkMode]);
+
+	useEffect(() => {
+		ConfigProvider.config({
+			holderRender: (holder) => <ConfigProvider theme={antdTheme}>{holder}</ConfigProvider>,
+		});
+	}, [antdTheme]);
+
+	return <ConfigProvider theme={antdTheme}>{children}</ConfigProvider>;
+};
+
 const App = () => {
 	return (
 		<AuthProvider>
 			<ThemeProvider>
-				<Router>
-					<Routes>
-						{/* Public Routes */}
-						<Route path="/login" element={<PublicRoute component={Login} />} />
-						<Route path="/register" element={<PublicRoute component={Register} />} />
-						<Route path="/verify/:token" element={<VerifyEmail />} />
-						<Route path="/forgot-password" element={<ForgotPassword />} />
-						<Route path="/reset-password/:token" element={<ResetPassword />} />
-						<Route path="/about" element={<AboutUs />} />
-						<Route path="/contact" element={<ContactUs />} />
-						<Route path="/privacy-policy" element={<PrivacyPolicy />} />
-						<Route path="/terms" element={<TermsAndConditions />} />
+				<AntdThemeProvider>
+					<Router>
+						<Routes>
+							{/* Public Routes */}
+							<Route path="/login" element={<PublicRoute component={Login} />} />
+							<Route path="/register" element={<PublicRoute component={Register} />} />
+							<Route path="/verify/:token" element={<VerifyEmail />} />
+							<Route path="/forgot-password" element={<ForgotPassword />} />
+							<Route path="/reset-password/:token" element={<ResetPassword />} />
+							<Route path="/about" element={<AboutUs />} />
+							<Route path="/contact" element={<ContactUs />} />
+							<Route path="/privacy-policy" element={<PrivacyPolicy />} />
+							<Route path="/terms" element={<TermsAndConditions />} />
 
-						{/* Semi-Public Routes (wrapped in AppLayout) */}
-						<Route
-							path="/properties"
-							element={
-								<AppLayout>
-									<PropertyListing />
-								</AppLayout>
-							}
-						/>
-						<Route
-							path="/properties/:id"
-							element={
-								<AppLayout>
-									<PropertyDetails />
-								</AppLayout>
-							}
-						/>
+							{/* Semi-Public Routes (wrapped in AppLayout) */}
+							<Route
+								path="/properties"
+								element={
+									<AppLayout>
+										<PropertyListing />
+									</AppLayout>
+								}
+							/>
+							<Route
+								path="/properties/:id"
+								element={
+									<AppLayout>
+										<PropertyDetails />
+									</AppLayout>
+								}
+							/>
 
-						{/* Protected Routes */}
-						<Route path="/add-property" element={<ProtectedRoute component={AddProperty} />} />
-						<Route path="/edit-property/:id" element={<ProtectedRoute component={EditProperty} />} />
-						<Route path="/profile" element={<ProtectedRoute component={Profile} />} />
+							{/* Protected Routes */}
+							<Route path="/add-property" element={<ProtectedRoute component={AddProperty} />} />
+							<Route path="/edit-property/:id" element={<ProtectedRoute component={EditProperty} />} />
+							<Route path="/profile" element={<ProtectedRoute component={Profile} />} />
 
-						{/* Default Route */}
-						<Route path="/" element={<Navigate to="/properties" />} />
-					</Routes>
-				</Router>
+							{/* Default Route */}
+							<Route path="/" element={<Navigate to="/properties" />} />
+						</Routes>
+					</Router>
+				</AntdThemeProvider>
 			</ThemeProvider>
 		</AuthProvider>
 	);

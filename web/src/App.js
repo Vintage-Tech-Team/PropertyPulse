@@ -48,7 +48,14 @@ const App = () => {
 							<Route path="/verify/:token" element={<VerifyEmail />} />
 							<Route path="/forgot-password" element={<ForgotPassword />} />
 							<Route path="/reset-password/:token" element={<ResetPassword />} />
-							<Route path="/about" element={<AboutUs />} />
+							<Route
+								path="/about"
+								element={
+									<AppLayout>
+										<AboutUs />
+									</AppLayout>
+								}
+							/>
 							<Route path="/contact" element={<ContactUs />} />
 							<Route path="/privacy-policy" element={<PrivacyPolicy />} />
 							<Route path="/terms" element={<TermsAndConditions />} />

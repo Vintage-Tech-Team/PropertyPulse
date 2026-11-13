@@ -38,7 +38,12 @@ api.interceptors.response.use(
     console.error("API Error:", error.response || error.message);
 
     // Custom error handling logic (e.g., unauthorized or server errors)
-    if (error.response?.status === 401) {
+    // A 401 only means the session expired when the request was sent with a token.
+    // Auth endpoints (login, reset password, ...) return 401 for bad credentials,
+    // which their pages show to the user, so don't redirect for those.
+    const sentToken = Boolean(error.config?.headers?.Authorization);
+    const isAuthRequest = error.config?.url?.startsWith("/auth/");
+    if (error.response?.status === 401 && sentToken && !isAuthRequest) {
       // Handle token expiration (e.g., redirect to login)
       localStorage.removeItem("token");
       window.location.href = "/login";

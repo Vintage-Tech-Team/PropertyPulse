@@ -1,0 +1,121 @@
+/* Shared layout for the Add / Edit property pages */
+.page {
+    --ink: #10262b;
+    --muted: #5b6b70;
+    --green: #2e8b6a;
+
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 4px 8px 40px;
+}
+
+:global(body.dark-theme) .page {
+    --ink: #e8f0f1;
+    --muted: #9db0b4;
+    --green: #5cc29a;
+}
+
+.backLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 18px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.backLink:hover {
+    color: var(--ink);
+}
+
+.backLink svg {
+    width: 16px;
+    height: 16px;
+}
+
+.eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 8px;
+    color: var(--green);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.eyebrow::before {
+    content: '';
+    width: 22px;
+    height: 2px;
+    background: var(--green);
+}
+
+.title {
+    margin: 0 0 6px;
+    color: var(--ink);
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+}
+
+.subtitle {
+    margin: 0 0 24px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.section {
+    margin-bottom: 20px;
+}
+
+.mapBox {
+    height: 400px;
+}
+
+.uploadHint {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.actions :global(.ant-btn) {
+    min-width: 160px;
+}
+
+@media (max-width: 767px) {
+    .page {
+        padding: 0 0 24px;
+    }
+
+    .title {
+        font-size: 24px;
+    }
+
+    .mapBox {
+        height: 300px;
+    }
+
+    .actions {
+        flex-direction: column-reverse;
+    }
+
+    .actions :global(.ant-btn) {
+        width: 100%;
+    }
+}

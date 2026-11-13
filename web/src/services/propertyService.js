@@ -48,10 +48,9 @@ export const addProperty = async (propertyData) => {
 		return response.data;
 	} catch (error) {
 		if (error.response?.data?.error === 'A property with this Consumer ID already exists') {
-			throw {
-				message: 'Consumer ID already exists',
-				existingPropertyId: error.response.data.existingPropertyId,
-			};
+			const duplicateError = new Error('Consumer ID already exists');
+			duplicateError.existingPropertyId = error.response.data.existingPropertyId;
+			throw duplicateError;
 		}
 		console.error('Failed to add property:', error.message);
 		throw error;

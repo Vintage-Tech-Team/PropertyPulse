@@ -6,7 +6,7 @@ import { addAddress } from '../../services/addressService'; // Import the addAdd
 import { useNavigate } from 'react-router-dom';
 import { getUserIdFromToken } from '../../utils/token';
 import PropertyMap from '../../components/Map/PropertyMap';
-import { PAKISTANI_CITIES, PAKISTANI_PROVINCES } from '../../utils/constants';
+import { PAKISTANI_CITIES } from '../../utils/constants';
 import styles from './PropertyForm.module.css';
 
 const { Option } = Select;
@@ -16,7 +16,7 @@ const AddProperty = () => {
 	const [form] = Form.useForm();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [selectedLocation, setSelectedLocation] = useState(null);
-	const [defaultCenter, setDefaultCenter] = useState(null);
+	const [defaultCenter] = useState(null);
 
 	const navigate = useNavigate();
 
@@ -325,7 +325,7 @@ const AddProperty = () => {
 											{ required: true, message: 'Street is required' },
 											{ validator: validateNonEmpty },
 											{
-												pattern: /^[a-zA-Z0-9\s\-,.#\/()]+$/,
+												pattern: /^[a-zA-Z0-9\s\-,.#/()]+$/,
 												message: 'Street can only contain letters, numbers and basic punctuation',
 											},
 											{ max: 100, message: 'Street name cannot exceed 100 characters' },

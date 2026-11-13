@@ -78,7 +78,7 @@ const PropertyMap = ({
 		return createMarkerPosition(selectedLocation[1], selectedLocation[0]);
 	});
 	const [mapInstance, setMapInstance] = useState(null);
-	const [markers, setMarkers] = useState(new Map());
+	const [markers] = useState(new Map());
 
 	const createAdvancedMarker = useCallback(
 		async (position, options = {}) => {
@@ -430,6 +430,9 @@ const PropertyMap = ({
 			markers.forEach((marker) => (marker.map = null));
 			markers.clear();
 		};
+		// handleMarkerPositionChange, navigate and onLocationSelect are only called from marker listeners, and
+		// handleMarkerPositionChange is recreated every render; listing them would rebuild every marker on each render.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isLoaded, mapInstance, properties, userLocation, markerPosition, draggableMarker, createAdvancedMarker]);
 
 	if (loadError) {

@@ -25,6 +25,8 @@ const EditProperty = () => {
 
 	useEffect(() => {
 		loadProperty();
+		// loadProperty is recreated every render; the property should only reload when the id changes.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [decodedId]);
 
 	const loadProperty = async () => {

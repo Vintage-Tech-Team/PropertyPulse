@@ -56,9 +56,30 @@ const App = () => {
 									</AppLayout>
 								}
 							/>
-							<Route path="/contact" element={<ContactUs />} />
-							<Route path="/privacy-policy" element={<PrivacyPolicy />} />
-							<Route path="/terms" element={<TermsAndConditions />} />
+							<Route
+								path="/contact"
+								element={
+									<AppLayout>
+										<ContactUs />
+									</AppLayout>
+								}
+							/>
+							<Route
+								path="/privacy-policy"
+								element={
+									<AppLayout>
+										<PrivacyPolicy />
+									</AppLayout>
+								}
+							/>
+							<Route
+								path="/terms"
+								element={
+									<AppLayout>
+										<TermsAndConditions />
+									</AppLayout>
+								}
+							/>
 
 							{/* Semi-Public Routes (wrapped in AppLayout) */}
 							<Route

@@ -1,0 +1,192 @@
+.page {
+    --ink: #10262b;
+    --muted: #5b6b70;
+    --green: #2e8b6a;
+    --line: #e2e8ea;
+    --surface: #ffffff;
+    --mint: #e8f4ee;
+
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 48px;
+    align-items: start;
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 24px 8px 48px;
+    color: var(--ink);
+}
+
+:global(body.dark-theme) .page {
+    --ink: #e8f0f1;
+    --muted: #9db0b4;
+    --green: #5cc29a;
+    --line: #26343a;
+    --surface: #141c1f;
+    --mint: #17302a;
+}
+
+.eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 14px;
+    color: var(--green);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.eyebrow::before {
+    content: '';
+    width: 22px;
+    height: 2px;
+    background: var(--green);
+}
+
+.title {
+    margin: 0 0 14px;
+    color: var(--ink);
+    font-size: clamp(32px, 3.8vw, 46px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+}
+
+.lead {
+    margin: 0 0 32px;
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.channels {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.channel {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--ink);
+    text-decoration: none;
+    transition: border-color 0.15s;
+}
+
+.channel:hover {
+    border-color: var(--green);
+    color: var(--ink);
+}
+
+.channelIcon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: var(--mint);
+    color: var(--green);
+}
+
+.channelIcon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.channelLabel {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.channelValue {
+    display: block;
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.formCard {
+    padding: 32px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--surface);
+}
+
+.formTitle {
+    margin: 0 0 4px;
+    color: var(--ink);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.formHint {
+    margin: 0 0 24px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.sent {
+    padding: 24px 0 8px;
+    text-align: center;
+}
+
+.sentIcon {
+    display: inline-grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 16px;
+    border-radius: 50%;
+    background: var(--mint);
+    color: var(--green);
+}
+
+.sentIcon svg {
+    width: 26px;
+    height: 26px;
+}
+
+.sentText {
+    margin: 0 auto 24px;
+    max-width: 340px;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+@media (max-width: 899px) {
+    .page {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        padding-top: 8px;
+    }
+}
+
+@media (max-width: 767px) {
+    .page {
+        padding: 0 0 32px;
+    }
+
+    .formCard {
+        padding: 22px;
+    }
+
+    .row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+}

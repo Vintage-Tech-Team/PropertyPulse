@@ -1,27 +1,58 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Upload, message, Card, Row, Col, Spin, Modal, Tooltip } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
-import { UploadOutlined, InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { InfoCircleOutlined, PlusOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { fetchPropertyById, updateProperty } from '../../services/propertyService';
 import { updateAddress } from '../../services/addressService';
 import PropertyMap from '../../components/Map/PropertyMap';
+import styles from './PropertyForm.module.css';
 
 const { TextArea } = Input;
+
+const MAX_PHOTOS = 8;
+
+const isBill = (file) => file.type === 'electricityBill';
+
+const addressValues = (address) => ({
+	houseNumber: address.houseNumber,
+	street: address.street,
+	block: address.block,
+	societyTown: address.societyTown,
+	city: address.city,
+	lat: address.location?.lat,
+	lng: address.location?.lng,
+});
+
+const validateImage = (file) => {
+	if (!file.type.startsWith('image/')) {
+		message.error('You can only upload image files!');
+		return Upload.LIST_IGNORE;
+	}
+	if (file.size / 1024 / 1024 >= 5) {
+		message.error('Image must be smaller than 5MB!');
+		return Upload.LIST_IGNORE;
+	}
+	return false; // keep the file locally, it's sent with the form
+};
 
 const EditProperty = () => {
 	const { id } = useParams();
 	const decodedId = decodeURIComponent(id);
 
 	const [form] = Form.useForm();
-	const [loading, setLoading] = useState(true);
-	const [submitting, setSubmitting] = useState(false);
-	const [fileList, setFileList] = useState([]);
-	const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
 	const [addressForm] = Form.useForm();
 	const navigate = useNavigate();
+	const [loading, setLoading] = useState(true);
+	const [submitting, setSubmitting] = useState(false);
+	const [savingAddress, setSavingAddress] = useState(false);
+	const [fileList, setFileList] = useState([]);
+	const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
 	const [selectedLocation, setSelectedLocation] = useState(null);
 	const [defaultCenter, setDefaultCenter] = useState(null);
-	const [addressId, setAddressId] = useState(null); // Add state for addressId
+	const [address, setAddress] = useState(null);
+	const [verified, setVerified] = useState(null);
+	const [propertyName, setPropertyName] = useState('');
+	const [details, setDetails] = useState(null);
 
 	useEffect(() => {
 		loadProperty();
@@ -29,61 +60,54 @@ const EditProperty = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [decodedId]);
 
+	// Fill the forms once they're mounted (they aren't rendered while the page is loading)
+	useEffect(() => {
+		if (loading) return;
+		if (details) form.setFieldsValue(details);
+		if (address) addressForm.setFieldsValue(addressValues(address));
+	}, [loading, details, address, form, addressForm]);
+
 	const loadProperty = async () => {
 		try {
 			const data = await fetchPropertyById(decodedId, true);
-			form.setFieldsValue({
+			setDetails({
 				name: data.name,
 				description: data.description,
 				owner: data.owner,
 				consumerId: data.consumerId,
 			});
+			setVerified(Boolean(data.verified));
+			setPropertyName(data.name);
 
-			// Set address form values and addressId
 			if (data.address) {
-				setAddressId(data.address._id); // Set the address ID
-				addressForm.setFieldsValue({
-					houseNumber: data.address?.houseNumber,
-					street: data.address?.street,
-					block: data.address?.block,
-					societyTown: data.address?.societyTown,
-					city: data.address?.city,
-					lat: data.address?.location?.lat,
-					lng: data.address?.location?.lng,
-				});
+				setAddress(data.address);
 
-				// Set map location
-				if (data.address?.location) {
-					setSelectedLocation([data.address.location.lng, data.address.location.lat]);
-					setDefaultCenter([data.address.location.lng, data.address.location.lat]);
+				if (data.address.location) {
+					const coords = [data.address.location.lng, data.address.location.lat];
+					setSelectedLocation(coords);
+					setDefaultCenter(coords);
 				}
 			}
 
-			// Set existing images if any
-			if (data.imageUrls) {
-				setFileList(
-					data.imageUrls.map((url, index) => ({
-						uid: `-${index}`,
-						name: `Image ${index + 1}`,
-						status: 'done',
-						url: url,
-					})),
-				);
-			}
-
-			// Set electricity bill image if exists
-			if (data.electricityBillImage) {
-				setFileList((prev) => [
-					...prev,
-					{
-						uid: 'electricity-bill',
-						name: 'Electricity Bill',
-						status: 'done',
-						url: data.electricityBillImage,
-						type: 'electricityBill',
-					},
-				]);
-			}
+			const images = (data.imageUrls || []).map((url, index) => ({
+				uid: `-${index}`,
+				name: `Photo ${index + 1}`,
+				status: 'done',
+				url,
+			}));
+			const bill = data.electricityBillImage
+				? [
+						{
+							uid: 'electricity-bill',
+							name: 'Electricity bill',
+							status: 'done',
+							url: data.electricityBillImage,
+							thumbUrl: data.electricityBillImage,
+							type: 'electricityBill',
+						},
+					]
+				: [];
+			setFileList([...images, ...bill]);
 		} catch (error) {
 			message.error('Failed to load property details');
 			navigate('/properties');
@@ -92,41 +116,29 @@ const EditProperty = () => {
 		}
 	};
 
+	const photos = fileList.filter((file) => !isBill(file));
+	const billFiles = fileList.filter(isBill);
+
 	const onFinish = async (values) => {
+		const validPhotos = photos.filter((file) => file.url || (file.originFileObj && file.status !== 'error'));
+		if (validPhotos.length < 2) {
+			message.error('At least two property photos are required');
+			return;
+		}
+		const electricityBill = billFiles[0];
+		if (!electricityBill) {
+			message.error('Electricity bill image is required');
+			return;
+		}
+
 		setSubmitting(true);
 		try {
-			// Validate required fields
-			if (!values.name || !values.description || !values.owner || !values.consumerId) {
-				message.error('Please fill in all required fields');
-				return;
-			}
-
-			// Separate electricity bill from regular images
-			const regularImages = fileList.filter((file) => !file.type || file.type !== 'electricityBill');
-			const electricityBill = fileList.find((file) => file.type === 'electricityBill');
-
-			// Validate images
-			const totalValidImages = regularImages.filter(
-				(file) => file.url || (file.originFileObj && file.status !== 'error'),
-			).length;
-
-			if (totalValidImages < 2) {
-				message.error('At least two property images are required');
-				return;
-			}
-
-			if (!electricityBill) {
-				message.error('Electricity bill image is required');
-				return;
-			}
-
 			await updateProperty(decodedId, {
 				...values,
-				fileList: regularImages,
+				fileList: photos,
 				electricityBill: electricityBill.originFileObj || electricityBill.url,
 			});
-
-			message.success('Property updated successfully');
+			message.success('Property updated');
 			navigate('/profile?tab=properties');
 		} catch (error) {
 			console.error('Update error:', error);
@@ -136,315 +148,288 @@ const EditProperty = () => {
 		}
 	};
 
-	// Handle location selection from map
 	const handleLocationSelect = (coordinates) => {
 		const [lng, lat] = coordinates;
-		addressForm.setFieldsValue({
-			lat: lat.toFixed(6),
-			lng: lng.toFixed(6),
-		});
+		addressForm.setFieldsValue({ lat: lat.toFixed(6), lng: lng.toFixed(6) });
 		setSelectedLocation(coordinates);
 	};
 
-	const handleAddressUpdate = async (values) => {
-		try {
-			if (!addressId) {
-				message.error('Address ID not found');
-				return;
-			}
-
-			// Update address separately
-			const addressData = {
-				...values,
-				location: {
-					lat: parseFloat(values.lat),
-					lng: parseFloat(values.lng),
-				},
-			};
-
-			await updateAddress(addressId, addressData);
-			message.success('Address updated successfully');
-			setIsAddressModalVisible(false);
-			loadProperty(); // Reload data
-		} catch (error) {
-			message.error('Failed to update address');
+	const closeAddressModal = () => {
+		setIsAddressModalOpen(false);
+		// Drop unsaved edits so the modal reopens with the saved address
+		if (address) {
+			addressForm.setFieldsValue(addressValues(address));
+			if (address.location) setSelectedLocation([address.location.lng, address.location.lat]);
 		}
 	};
 
+	const handleAddressUpdate = async (values) => {
+		if (!address?._id) {
+			message.error('Address not found');
+			return;
+		}
+		setSavingAddress(true);
+		try {
+			await updateAddress(address._id, {
+				...values,
+				location: { lat: parseFloat(values.lat), lng: parseFloat(values.lng) },
+			});
+			message.success('Address updated');
+			setIsAddressModalOpen(false);
+			loadProperty();
+		} catch (error) {
+			message.error('Failed to update address');
+		} finally {
+			setSavingAddress(false);
+		}
+	};
+
+	const handlePhotosChange = ({ fileList: newPhotos }) => {
+		const updated = newPhotos.map((file) =>
+			file.originFileObj && !file.url && file.status !== 'error' ? { ...file, status: 'done' } : file,
+		);
+		setFileList([...updated, ...billFiles]);
+	};
+
+	const handleBillChange = ({ fileList: newBillList }) => {
+		const newBill = newBillList[newBillList.length - 1];
+		setFileList(newBill ? [...photos, { ...newBill, type: 'electricityBill' }] : photos);
+	};
+
+	const handlePreview = (file) => {
+		const src = file.url || file.thumbUrl || (file.originFileObj && URL.createObjectURL(file.originFileObj));
+		if (src) window.open(src, '_blank', 'noopener');
+	};
+
 	if (loading) {
-		return <Spin size="large" />;
+		return (
+			<div className={styles.loading}>
+				<Spin size="large" />
+			</div>
+		);
 	}
 
+	const addressRows = [
+		{ label: 'House no.', value: address?.houseNumber },
+		{ label: 'Block', value: address?.block },
+		{ label: 'Street', value: address?.street },
+		{ label: 'Society / town', value: address?.societyTown },
+		{ label: 'City', value: address?.city },
+	];
+
+	const uploadTile = (label) => (
+		<div>
+			<PlusOutlined />
+			<div style={{ marginTop: 8 }}>{label}</div>
+		</div>
+	);
+
 	return (
-		<div style={{ maxWidth: 1200, margin: '20px auto', padding: '0 20px' }}>
-			<Card title="Edit Property">
-				<Form
-					form={form}
-					layout="vertical"
-					onFinish={onFinish}
-					initialValues={{
-						name: form.getFieldValue('name'),
-						description: form.getFieldValue('description'),
-						owner: form.getFieldValue('owner'),
-					}}
-				>
-					{/* Property Info Row */}
-					<Row gutter={16}>
-						<Col xs={24} md={8}>
-							<Form.Item
-								name="name"
-								label="Property Name"
-								rules={[{ required: true, message: 'Please enter property name' }]}
-							>
-								<Input />
-							</Form.Item>
-						</Col>
-						<Col xs={24} md={8}>
-							<Form.Item
-								name="owner"
-								label="Owner Name"
-								rules={[{ required: true, message: 'Please enter owner name' }]}
-							>
-								<Input />
-							</Form.Item>
-						</Col>
-						<Col xs={24} md={8}>
+		<div className={styles.page}>
+			<button type="button" className={styles.backLink} onClick={() => navigate('/profile?tab=properties')}>
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+					<path d="M19 12H5M11 6l-6 6 6 6" />
+				</svg>
+				Back to my properties
+			</button>
+
+			<div className={styles.headerRow}>
+				<div>
+					<p className={styles.eyebrow}>Edit listing</p>
+					<h1 className={styles.title}>{propertyName || 'Edit property'}</h1>
+					<p className={styles.subtitle}>Update the details, photos and location of this property.</p>
+				</div>
+				{verified !== null && (
+					<span className={`${styles.status} ${verified ? styles.statusApproved : styles.statusPending}`}>
+						{verified ? 'Approved' : 'Pending review'}
+					</span>
+				)}
+			</div>
+
+			<Form form={form} layout="vertical" onFinish={onFinish}>
+				<div className={styles.editLayout}>
+					<div className={styles.mainColumn}>
+						<Card title="Property information" className={styles.section}>
+							<Row gutter={16}>
+								<Col xs={24} sm={12}>
+									<Form.Item
+										name="name"
+										label="Property name"
+										rules={[{ required: true, whitespace: true, message: 'Please enter the property name' }]}
+									>
+										<Input maxLength={50} />
+									</Form.Item>
+								</Col>
+								<Col xs={24} sm={12}>
+									<Form.Item
+										name="owner"
+										label="Owner name"
+										rules={[{ required: true, whitespace: true, message: "Please enter the owner's name" }]}
+									>
+										<Input maxLength={50} />
+									</Form.Item>
+								</Col>
+							</Row>
 							<Form.Item
 								name="consumerId"
 								label="Consumer ID"
-								tooltip="Enter the electricity consumer ID"
+								tooltip="The electricity consumer ID printed on the bill"
 								rules={[
 									{ required: true, message: 'Consumer ID is required' },
 									{ pattern: /^[0-9]{8,}$/, message: 'Please enter a valid consumer ID (minimum 8 digits)' },
 								]}
 							>
-								<Input placeholder="Enter Consumer ID" />
+								<Input placeholder="Enter consumer ID" />
 							</Form.Item>
-						</Col>
-					</Row>
-
-					<Form.Item
-						name="description"
-						label="Description"
-						rules={[{ required: true, message: 'Please enter description' }]}
-					>
-						<TextArea rows={4} />
-					</Form.Item>
-
-					{/* Images Row */}
-					<Row gutter={16}>
-						<Col xs={24} md={8}>
-							<Form.Item name="electricityBill" label="Electricity Bill" tooltip="Upload latest electricity bill">
-								<Upload
-									maxCount={1}
-									listType="picture-card"
-									fileList={fileList.filter((file) => file.type === 'electricityBill')}
-									beforeUpload={(file) => {
-										const isImage = file.type.startsWith('image/');
-										if (!isImage) {
-											message.error('You can only upload image files!');
-											return false;
-										}
-										const isLt5M = file.size / 1024 / 1024 < 5;
-										if (!isLt5M) {
-											message.error('Image must be smaller than 5MB!');
-											return false;
-										}
-										return false;
-									}}
-									onChange={({ fileList: newFileList }) => {
-										const filteredList = fileList.filter((file) => file.type !== 'electricityBill');
-										const newBill = newFileList[0];
-										if (newBill) {
-											newBill.type = 'electricityBill';
-											setFileList([...filteredList, newBill]);
-										} else {
-											setFileList(filteredList);
-										}
-									}}
-								>
-									{fileList.some((file) => file.type === 'electricityBill') ? null : (
-										<div>
-											<PlusOutlined />
-											<div style={{ marginTop: 8 }}>Upload Bill</div>
-										</div>
-									)}
-								</Upload>
+							<Form.Item
+								name="description"
+								label="Description"
+								rules={[{ required: true, whitespace: true, message: 'Please enter a description' }]}
+							>
+								<TextArea rows={4} maxLength={500} showCount />
 							</Form.Item>
-						</Col>
-						<Col xs={24} md={16}>
-							<Form.Item label="Property Images" extra="At least 2 images are required">
-								<Upload
-									multiple
-									listType="picture-card"
-									fileList={fileList.filter((file) => !file.type || file.type !== 'electricityBill')}
-									onChange={({ fileList: newFileList }) => {
-										const updatedFileList = newFileList.map((file) => {
-											if (file.originFileObj && !file.url && file.status !== 'error') {
-												return { ...file, status: 'done' };
-											}
-											return file;
-										});
-										const existingBill = fileList.find((file) => file.type === 'electricityBill');
-										setFileList(existingBill ? [...updatedFileList, existingBill] : updatedFileList);
-									}}
-									beforeUpload={() => false}
-								>
-									{fileList.filter((file) => !file.type || file.type !== 'electricityBill').length >= 8 ? null : (
-										<div>
-											<UploadOutlined />
-											<div style={{ marginTop: 8 }}>Add Image</div>
-										</div>
-									)}
-								</Upload>
-							</Form.Item>
-						</Col>
-					</Row>
+						</Card>
 
-					{/* Address Display */}
-					<Card
-						title="Property Address"
-						bordered={false}
-						extra={
-							<Button type="primary" onClick={() => setIsAddressModalVisible(true)}>
-								Update Address
+						<Card
+							title="Property photos"
+							extra={
+								<span className={styles.cardMeta}>
+									{photos.length} / {MAX_PHOTOS}
+								</span>
+							}
+							className={styles.section}
+						>
+							<p className={styles.cardHint}>Add at least 2 photos. The first one is used as the cover.</p>
+							<Upload
+								multiple
+								listType="picture-card"
+								fileList={photos}
+								onChange={handlePhotosChange}
+								onPreview={handlePreview}
+								beforeUpload={validateImage}
+							>
+								{photos.length >= MAX_PHOTOS ? null : uploadTile('Add photo')}
+							</Upload>
+						</Card>
+
+						<Card title="Electricity bill" className={styles.section}>
+							<p className={styles.cardHint}>
+								Upload the latest bill so the property can be verified.
+							</p>
+							<Upload
+								maxCount={1}
+								listType="picture-card"
+								fileList={billFiles}
+								onChange={handleBillChange}
+								onPreview={handlePreview}
+								beforeUpload={validateImage}
+							>
+								{billFiles.length ? null : uploadTile('Upload bill')}
+							</Upload>
+						</Card>
+					</div>
+
+					<aside className={styles.sideColumn}>
+						<Card
+							title="Location"
+							extra={
+								<Button size="small" onClick={() => setIsAddressModalOpen(true)}>
+									Change
+								</Button>
+							}
+							className={styles.section}
+						>
+							<div className={styles.miniMap}>
+								<PropertyMap
+									draggableMarker={false}
+									selectedLocation={selectedLocation}
+									center={defaultCenter}
+									zoom={13}
+									disableControls={true}
+									properties={[
+										{
+											_id: 'current',
+											address: { location: { lat: selectedLocation?.[1], lng: selectedLocation?.[0] } },
+										},
+									]}
+								/>
+							</div>
+							<dl className={styles.addressList}>
+								{addressRows.map(({ label, value }) => (
+									<div key={label}>
+										<dt>{label}</dt>
+										<dd>{value || '—'}</dd>
+									</div>
+								))}
+							</dl>
+							{address?.location && (
+								<p className={styles.coords}>
+									<EnvironmentOutlined /> {Number(address.location.lat).toFixed(5)},{' '}
+									{Number(address.location.lng).toFixed(5)}
+								</p>
+							)}
+						</Card>
+
+						<div className={styles.sideActions}>
+							<Button type="primary" htmlType="submit" size="large" block loading={submitting}>
+								Save changes
 							</Button>
-						}
-					>
-						<Row gutter={16}>
-							<Col xs={24} sm={12} md={8}>
-								<p style={{ margin: '0 0 8px 0', lineHeight: '1.6', fontSize: '14px' }}>
-									<strong>House No.:</strong> {addressForm.getFieldValue('houseNumber') || 'N/A'}
-									<br />
-									<strong>Street:</strong> {addressForm.getFieldValue('street') || 'N/A'}
-									<br />
-									<strong>Block:</strong> {addressForm.getFieldValue('block') || 'N/A'}
-								</p>
-							</Col>
-							<Col xs={24} sm={12} md={8}>
-								<p style={{ margin: '0 0 8px 0', lineHeight: '1.6', fontSize: '14px' }}>
-									<strong>Society/Town:</strong> {addressForm.getFieldValue('societyTown') || 'N/A'}
-									<br />
-									<strong>City:</strong> {addressForm.getFieldValue('city') || 'N/A'}
-									<br />
-									<strong>Coordinates:</strong> {addressForm.getFieldValue('lat')}, {addressForm.getFieldValue('lng')}
-								</p>
-							</Col>
-							<Col xs={24} md={8}>
-								<div style={{ height: '120px', marginTop: '8px' }}>
-									<PropertyMap
-										draggableMarker={false}
-										selectedLocation={selectedLocation}
-										center={defaultCenter}
-										zoom={13}
-										disableControls={true}
-										properties={[
-											{
-												_id: 'current',
-												address: {
-													location: {
-														lat: selectedLocation?.[1],
-														lng: selectedLocation?.[0],
-													},
-												},
-											},
-										]}
-									/>
-								</div>
-							</Col>
-						</Row>
-					</Card>
+							<Button size="large" block onClick={() => navigate('/profile?tab=properties')} disabled={submitting}>
+								Cancel
+							</Button>
+						</div>
+					</aside>
+				</div>
+			</Form>
 
-					<Form.Item>
-						<Button type="primary" htmlType="submit" loading={submitting}>
-							Update Property
-						</Button>
-						<Button style={{ marginLeft: 8 }} onClick={() => navigate('/profile?tab=properties')}>
-							Cancel
-						</Button>
-					</Form.Item>
-				</Form>
-			</Card>
-
-			{/* Address Update Modal */}
-			<Modal
-				title="Update Address"
-				open={isAddressModalVisible}
-				onCancel={() => setIsAddressModalVisible(false)}
-				width={1000}
-				footer={null}
-			>
+			<Modal title="Change address" open={isAddressModalOpen} onCancel={closeAddressModal} width={960} footer={null} forceRender>
 				<Form form={addressForm} layout="vertical" onFinish={handleAddressUpdate}>
-					<Row gutter={16}>
+					<Row gutter={24}>
 						<Col xs={24} md={12}>
-							{/* Address fields */}
-							<Row gutter={[16, 16]}>
+							<Row gutter={16}>
 								<Col xs={24} sm={12}>
-									<Form.Item name="houseNumber" label="House Number" rules={[{ required: true }]}>
-										<Input placeholder="Enter house number" />
+									<Form.Item name="houseNumber" label="House number" rules={[{ required: true, message: 'Required' }]}>
+										<Input placeholder="e.g. 12" />
 									</Form.Item>
 								</Col>
 								<Col xs={24} sm={12}>
-									<Form.Item name="block" label="Block" rules={[{ required: true }]}>
-										<Input placeholder="Enter block" />
-									</Form.Item>
-								</Col>
-								<Col xs={24}>
-									<Form.Item name="street" label="Street" rules={[{ required: true }]}>
-										<Input placeholder="Enter street" />
-									</Form.Item>
-								</Col>
-								<Col xs={24}>
-									<Form.Item name="societyTown" label="Society/Town" rules={[{ required: true }]}>
-										<Input placeholder="Enter society or town" />
-									</Form.Item>
-								</Col>
-								<Col xs={24}>
-									<Form.Item name="city" label="City" rules={[{ required: true }]}>
-										<Input placeholder="Enter city" />
+									<Form.Item name="block" label="Block" rules={[{ required: true, message: 'Required' }]}>
+										<Input placeholder="e.g. C" />
 									</Form.Item>
 								</Col>
 							</Row>
-
-							{/* Coordinates inputs */}
-							<Row gutter={[16, 16]}>
-								<Col xs={24} sm={12}>
-									<Form.Item
-										name="lat"
-										label={
-											<span>
-												Latitude
-												<Tooltip title="Click on the map to set the exact location">
-													<InfoCircleOutlined style={{ marginLeft: 8 }} />
-												</Tooltip>
-											</span>
-										}
-										rules={[{ required: true }]}
-									>
-										<Input readOnly />
-									</Form.Item>
-								</Col>
-								<Col xs={24} sm={12}>
-									<Form.Item
-										name="lng"
-										label={
-											<span>
-												Longitude
-												<Tooltip title="Click on the map to set the exact location">
-													<InfoCircleOutlined style={{ marginLeft: 8 }} />
-												</Tooltip>
-											</span>
-										}
-										rules={[{ required: true }]}
-									>
-										<Input readOnly />
-									</Form.Item>
-								</Col>
+							<Form.Item name="street" label="Street" rules={[{ required: true, message: 'Required' }]}>
+								<Input placeholder="Street" />
+							</Form.Item>
+							<Form.Item name="societyTown" label="Society / town" rules={[{ required: true, message: 'Required' }]}>
+								<Input placeholder="Society or town" />
+							</Form.Item>
+							<Form.Item name="city" label="City" rules={[{ required: true, message: 'Required' }]}>
+								<Input placeholder="City" />
+							</Form.Item>
+							<Row gutter={16}>
+								{['lat', 'lng'].map((field) => (
+									<Col xs={12} key={field}>
+										<Form.Item
+											name={field}
+											label={
+												<span>
+													{field === 'lat' ? 'Latitude' : 'Longitude'}
+													<Tooltip title="Click on the map to set the exact location">
+														<InfoCircleOutlined style={{ marginLeft: 8 }} />
+													</Tooltip>
+												</span>
+											}
+											rules={[{ required: true, message: 'Pick a point on the map' }]}
+										>
+											<Input readOnly />
+										</Form.Item>
+									</Col>
+								))}
 							</Row>
 						</Col>
 						<Col xs={24} md={12}>
-							{/* Map Section */}
-							<div style={{ height: '400px', marginBottom: '20px' }}>
+							<div className={styles.modalMap}>
 								<PropertyMap
 									draggableMarker={true}
 									onLocationSelect={handleLocationSelect}
@@ -455,29 +440,19 @@ const EditProperty = () => {
 									properties={[
 										{
 											_id: 'current',
-											address: {
-												location: {
-													lat: defaultCenter?.[1],
-													lng: defaultCenter?.[0],
-												},
-											},
+											address: { location: { lat: defaultCenter?.[1], lng: defaultCenter?.[0] } },
 										},
 									]}
 								/>
 							</div>
 						</Col>
 					</Row>
-
-					<Row justify="end" gutter={8}>
-						<Col>
-							<Button onClick={() => setIsAddressModalVisible(false)}>Cancel</Button>
-						</Col>
-						<Col>
-							<Button type="primary" htmlType="submit">
-								Update Address
-							</Button>
-						</Col>
-					</Row>
+					<div className={styles.modalActions}>
+						<Button onClick={closeAddressModal}>Cancel</Button>
+						<Button type="primary" htmlType="submit" loading={savingAddress}>
+							Save address
+						</Button>
+					</div>
 				</Form>
 			</Modal>
 		</div>

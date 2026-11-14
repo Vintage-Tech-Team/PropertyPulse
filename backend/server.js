@@ -38,48 +38,69 @@ app.use(
 // Files saved locally when S3 isn't configured (development only)
 app.use(LOCAL_UPLOAD_ROUTE, express.static(LOCAL_UPLOAD_DIR));
 
-// Database connection with connection pooling
-let cachedDb = null;
+// Database connection, cached across serverless invocations
+let connectionPromise = null;
+let lastDbError = null;
 
 async function connectToDatabase() {
-	if (cachedDb) {
-		return cachedDb;
+	if (mongoose.connection.readyState === 1) {
+		return mongoose.connection;
 	}
 
-	try {
-		const db = await mongoose.connect(process.env.MONGODB_URI, {
-			useNewUrlParser: true,
-			useUnifiedTopology: true,
-			serverSelectionTimeoutMS: 5000,
-			socketTimeoutMS: 9000,
-			maxPoolSize: 10,
-			minPoolSize: 5,
-			maxIdleTimeMS: 60000,
-		});
-
-		cachedDb = db;
-		return db;
-	} catch (error) {
-		console.error('MongoDB connection error:', error);
-		throw error;
+	if (!process.env.MONGODB_URI) {
+		throw new Error('MONGODB_URI environment variable is not set');
 	}
+
+	if (!connectionPromise) {
+		connectionPromise = mongoose
+			.connect(process.env.MONGODB_URI, {
+				serverSelectionTimeoutMS: 8000,
+				socketTimeoutMS: 45000,
+				maxPoolSize: 10,
+			})
+			.then((db) => {
+				lastDbError = null;
+				return db;
+			})
+			.catch((error) => {
+				connectionPromise = null;
+				lastDbError = error.message;
+				console.error('MongoDB connection error:', error);
+				throw error;
+			});
+	}
+
+	return connectionPromise;
 }
+
+app.get('/', (req, res) => {
+	res.send('Welcome to PropertyPulse API');
+});
+
+// Health check endpoint (does not require a DB connection to respond)
+app.get('/health', async (req, res) => {
+	try {
+		await connectToDatabase();
+	} catch (error) {
+		lastDbError = error.message;
+	}
+	const ok = mongoose.connection.readyState === 1;
+	res.status(ok ? 200 : 503).json({
+		status: ok ? 'ok' : 'error',
+		dbState: mongoose.connection.readyState,
+		mongoUriSet: Boolean(process.env.MONGODB_URI),
+		dbError: ok ? null : lastDbError,
+	});
+});
 
 // Middleware to ensure database connection
 app.use(async (req, res, next) => {
 	try {
-		if (!mongoose.connection.readyState) {
-			await connectToDatabase();
-		}
+		await connectToDatabase();
 		next();
 	} catch (error) {
 		next(error);
 	}
-});
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-	res.status(200).json({ status: 'ok', dbState: mongoose.connection.readyState });
 });
 
 // Routes with error handling
@@ -90,10 +111,6 @@ app.use('/api/properties', propertyRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/contacts', contactRoutes);
-
-app.get('/', (req, res) => {
-	res.send('Welcome to PropertyPulse API');
-});
 
 // Global error handler
 app.use((err, req, res, next) => {
